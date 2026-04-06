@@ -216,16 +216,29 @@ with response_example_1 as
 , lvl3 as
 (
     select      *,
-                max(case when record_type = 'MK01' then index end) over (partition by response_id, index_ma01, index_mo01 order by index asc) as index_mk01,
+
+                max(case when record_type = 'MSP1' then index end) over (partition by response_id, index_ma01, index_mo01 order by index asc) as index_msp1,
+                max(case when record_type = 'MACL' then index end) over (partition by response_id, index_ma01, index_mo01 order by index asc) as index_macl,
+                max(case when record_type = 'MS01' then index end) over (partition by response_id, index_ma01, index_mo01 order by index asc) as index_ms01,
+                max(case when record_type = 'MS02' then index end) over (partition by response_id, index_ma01, index_mo01 order by index asc) as index_ms02,
+
+                max(case when record_type = 'MO02' then index end) over (partition by response_id, index_ma01, index_ma03 order by index asc) as index_mo02,
+
                 coalesce(
-                    case when record_type in ('MO01', 'MACL') then record_type else NULL end,
-                    lag(case when record_type in ('MO01', 'MACL') then record_type else NULL end) ignore nulls  over (partition by response_id, index_ma01, index_mo01 order by index asc)
+                    case when record_type in ('MO01', 'MSP1', 'MACL') then record_type else NULL end,
+                    lag(case when record_type in ('MO01', 'MSP1', 'MACL') then record_type else NULL end) ignore nulls over (partition by response_id, index_ma01, index_mo01 order by index asc)
                 )   as lag_party_indicator,
+
+                coalesce(
+                    case when record_type in ('MC01', 'MV01') then record_type else NULL end,
+                    lag(case when record_type in ('MC01', 'MV01') then record_type else NULL end) ignore nulls over (partition by response_id, index_ma01, index_mo01 order by index asc)
+                )   as lag_coverage_indicator,
+
                 coalesce(
                     case when record_type in ('MS01', 'MS02') then record_type else NULL end,
-                    lag(case when record_type in ('MS01', 'MS02') then record_type else NULL end) ignore nulls  over (partition by response_id, index_ma01, index_mo01 order by index asc)
-                )   as lag_match_indicator,
-                max(case when record_type = 'MO02' then index end) over (partition by response_id, index_ma01, index_ma03 order by index asc) as index_mo02
+                    lag(case when record_type in ('MS01', 'MS02') then record_type else NULL end) ignore nulls over (partition by response_id, index_ma01, index_mo01 order by index asc)
+                )   as lag_match_indicator
+
     from        lvl2
 )
 select      *
