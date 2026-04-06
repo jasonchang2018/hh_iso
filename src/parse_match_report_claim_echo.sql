@@ -217,5 +217,5 @@ from        MA01
                 MA07
                 on  MA01.response_id    = MA07.response_id
                 and MA01.index_ma01     = MA07.index_ma01
-order by    1
+order by    1,2
 ;
