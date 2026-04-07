@@ -1,7 +1,8 @@
+--  Note that ISO nests this within Claimants (MO01).
 create or replace table
-    edwprodhh.iso.claimant_match
+    edwprodhh.iso.service_provider_match_summary
 as
-with MS01 as
+with MS02 as
 (
     select      response_id,
                 response_line,
@@ -10,7 +11,7 @@ with MS01 as
                 record_type,
                 index_ma01,
                 index_mo01,
-                index_ms01,
+                index_ms02,
                 
                 nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
                 nullif(trim(substring(response_line,    11,     11)),   '')     as iso_file_number_A1,
@@ -58,9 +59,9 @@ with MS01 as
                 nullif(trim(substring(response_line,    452,    61)),   '')     as filler
 
     from        edwprodhh.iso.response_flat
-    where       record_type = 'MS01'
+    where       record_type = 'MS02'
 )
-, MS01_MSUM as
+, MS02_MSUM as
 (
     select      response_id,
                 response_line,
@@ -69,7 +70,7 @@ with MS01 as
                 record_type,
                 index_ma01,
                 index_mo01,
-                index_ms01,
+                index_ms02,
                 
                 nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
                 nullif(trim(substring(response_line,    11,     2)),    '')     as total_number_of_matches_by_loss_type,
@@ -117,9 +118,9 @@ with MS01 as
 
     from        edwprodhh.iso.response_flat
     where       record_type = 'MSUM'
-                and lag_match_indicator = 'MS01'
+                and lag_match_indicator = 'MS02'
 )
-, MS01_MSKI as
+, MS02_MSKI as
 (
     select      response_id,
                 response_line,
@@ -128,7 +129,7 @@ with MS01 as
                 record_type,
                 index_ma01,
                 index_mo01,
-                index_ms01,
+                index_ms02,
                 
                 nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
                 nullif(trim(substring(response_line,    11,     2)),    '')     as key_indicator_code_1,
@@ -150,124 +151,124 @@ with MS01 as
 
     from        edwprodhh.iso.response_flat
     where       record_type = 'MSKI'
-                and lag_match_indicator = 'MS01'
+                and lag_match_indicator = 'MS02'
 )
-select      MS01.response_id,
-            MS01.index_MA01,
-            MS01.index_MO01,
-            MS01.index_MS01,
+select      MS02.response_id,
+            MS02.index_MA01,
+            MS02.index_MO01,
+            MS02.index_MS02,
 
-            MS01.iso_file_number_A1,
-            MS01.match_reason_code_A1,
-            MS01.iso_file_number_A2,
-            MS01.match_reason_code_A2,
-            MS01.iso_file_number_A3,
-            MS01.match_reason_code_A3,
-            MS01.iso_file_number_A4,
-            MS01.match_reason_code_A4,
-            MS01.iso_file_number_A5,
-            MS01.match_reason_code_A5,
-            MS01.iso_file_number_A6,
-            MS01.match_reason_code_A6,
-            MS01.iso_file_number_A7,
-            MS01.match_reason_code_A7,
-            MS01.iso_file_number_A8,
-            MS01.match_reason_code_A8,
-            MS01.iso_file_number_A9,
-            MS01.match_reason_code_A9,
-            MS01.iso_file_number_A10,
-            MS01.match_reason_code_A10,
-            MS01.iso_file_number_A11,
-            MS01.match_reason_code_A11,
-            MS01.iso_file_number_A12,
-            MS01.match_reason_code_A12,
-            MS01.iso_file_number_A13,
-            MS01.match_reason_code_A13,
-            MS01.iso_file_number_A14,
-            MS01.match_reason_code_A14,
-            MS01.iso_file_number_A15,
-            MS01.match_reason_code_A15,
-            MS01.iso_file_number_A16,
-            MS01.match_reason_code_A16,
-            MS01.iso_file_number_A17,
-            MS01.match_reason_code_A17,
-            MS01.iso_file_number_A18,
-            MS01.match_reason_code_A18,
-            MS01.iso_file_number_A19,
-            MS01.match_reason_code_A19,
-            MS01.iso_file_number_A20,
-            MS01.match_reason_code_A20,
-            MS01.iso_file_number_A21,
-            MS01.match_reason_code_A21,
-            MS01_MSUM.total_number_of_matches_by_loss_type,
-            MS01_MSUM.total_number_of_matches_with_siu_involvement,
-            MS01_MSUM.total_number_of_matches_by_name,
-            MS01_MSUM.total_number_of_matches_by_address,
-            MS01_MSUM.total_number_of_matches_by_ssn,
-            MS01_MSUM.total_number_of_matches_by_phone,
-            MS01_MSUM.total_number_of_matches_by_drivers_license,
-            MS01_MSUM.total_number_of_matches_by_vin,
-            MS01_MSUM.total_number_of_matches_by_license_plate,
-            MS01_MSUM.iso_file_number_B1,
-            MS01_MSUM.summary_code_B1,
-            MS01_MSUM.iso_file_number_B2,
-            MS01_MSUM.summary_code_B2,
-            MS01_MSUM.iso_file_number_B3,
-            MS01_MSUM.summary_code_B3,
-            MS01_MSUM.iso_file_number_B4,
-            MS01_MSUM.summary_code_B4,
-            MS01_MSUM.iso_file_number_B5,
-            MS01_MSUM.summary_code_B5,
-            MS01_MSUM.iso_file_number_B6,
-            MS01_MSUM.summary_code_B6,
-            MS01_MSUM.iso_file_number_B7,
-            MS01_MSUM.summary_code_B7,
-            MS01_MSUM.iso_file_number_B8,
-            MS01_MSUM.summary_code_B8,
-            MS01_MSUM.iso_file_number_B9,
-            MS01_MSUM.summary_code_B9,
-            MS01_MSUM.iso_file_number_B10,
-            MS01_MSUM.summary_code_B10,
-            MS01_MSUM.iso_file_number_B11,
-            MS01_MSUM.summary_code_B11,
-            MS01_MSUM.iso_file_number_B12,
-            MS01_MSUM.summary_code_B12,
-            MS01_MSUM.iso_file_number_B13,
-            MS01_MSUM.summary_code_B13,
-            MS01_MSUM.iso_file_number_B14,
-            MS01_MSUM.summary_code_B14,
-            MS01_MSUM.iso_file_number_B15,
-            MS01_MSUM.summary_code_B15,
-            MS01_MSUM.iso_file_number_B16,
-            MS01_MSUM.summary_code_B16,
-            MS01_MSKI.key_indicator_code_1,
-            MS01_MSKI.key_indicator_code_2,
-            MS01_MSKI.key_indicator_code_3,
-            MS01_MSKI.key_indicator_code_4,
-            MS01_MSKI.key_indicator_code_5,
-            MS01_MSKI.key_indicator_code_6,
-            MS01_MSKI.key_indicator_code_7,
-            MS01_MSKI.key_indicator_code_8,
-            MS01_MSKI.key_indicator_code_9,
-            MS01_MSKI.key_indicator_code_10,
-            MS01_MSKI.key_indicator_code_11,
-            MS01_MSKI.key_indicator_code_12,
-            MS01_MSKI.key_indicator_code_13,
-            MS01_MSKI.key_indicator_code_14,
-            MS01_MSKI.key_indicator_code_15
+            MS02.iso_file_number_A1,
+            MS02.match_reason_code_A1,
+            MS02.iso_file_number_A2,
+            MS02.match_reason_code_A2,
+            MS02.iso_file_number_A3,
+            MS02.match_reason_code_A3,
+            MS02.iso_file_number_A4,
+            MS02.match_reason_code_A4,
+            MS02.iso_file_number_A5,
+            MS02.match_reason_code_A5,
+            MS02.iso_file_number_A6,
+            MS02.match_reason_code_A6,
+            MS02.iso_file_number_A7,
+            MS02.match_reason_code_A7,
+            MS02.iso_file_number_A8,
+            MS02.match_reason_code_A8,
+            MS02.iso_file_number_A9,
+            MS02.match_reason_code_A9,
+            MS02.iso_file_number_A10,
+            MS02.match_reason_code_A10,
+            MS02.iso_file_number_A11,
+            MS02.match_reason_code_A11,
+            MS02.iso_file_number_A12,
+            MS02.match_reason_code_A12,
+            MS02.iso_file_number_A13,
+            MS02.match_reason_code_A13,
+            MS02.iso_file_number_A14,
+            MS02.match_reason_code_A14,
+            MS02.iso_file_number_A15,
+            MS02.match_reason_code_A15,
+            MS02.iso_file_number_A16,
+            MS02.match_reason_code_A16,
+            MS02.iso_file_number_A17,
+            MS02.match_reason_code_A17,
+            MS02.iso_file_number_A18,
+            MS02.match_reason_code_A18,
+            MS02.iso_file_number_A19,
+            MS02.match_reason_code_A19,
+            MS02.iso_file_number_A20,
+            MS02.match_reason_code_A20,
+            MS02.iso_file_number_A21,
+            MS02.match_reason_code_A21,
+            MS02_MSUM.total_number_of_matches_by_loss_type,
+            MS02_MSUM.total_number_of_matches_with_siu_involvement,
+            MS02_MSUM.total_number_of_matches_by_name,
+            MS02_MSUM.total_number_of_matches_by_address,
+            MS02_MSUM.total_number_of_matches_by_ssn,
+            MS02_MSUM.total_number_of_matches_by_phone,
+            MS02_MSUM.total_number_of_matches_by_drivers_license,
+            MS02_MSUM.total_number_of_matches_by_vin,
+            MS02_MSUM.total_number_of_matches_by_license_plate,
+            MS02_MSUM.iso_file_number_B1,
+            MS02_MSUM.summary_code_B1,
+            MS02_MSUM.iso_file_number_B2,
+            MS02_MSUM.summary_code_B2,
+            MS02_MSUM.iso_file_number_B3,
+            MS02_MSUM.summary_code_B3,
+            MS02_MSUM.iso_file_number_B4,
+            MS02_MSUM.summary_code_B4,
+            MS02_MSUM.iso_file_number_B5,
+            MS02_MSUM.summary_code_B5,
+            MS02_MSUM.iso_file_number_B6,
+            MS02_MSUM.summary_code_B6,
+            MS02_MSUM.iso_file_number_B7,
+            MS02_MSUM.summary_code_B7,
+            MS02_MSUM.iso_file_number_B8,
+            MS02_MSUM.summary_code_B8,
+            MS02_MSUM.iso_file_number_B9,
+            MS02_MSUM.summary_code_B9,
+            MS02_MSUM.iso_file_number_B10,
+            MS02_MSUM.summary_code_B10,
+            MS02_MSUM.iso_file_number_B11,
+            MS02_MSUM.summary_code_B11,
+            MS02_MSUM.iso_file_number_B12,
+            MS02_MSUM.summary_code_B12,
+            MS02_MSUM.iso_file_number_B13,
+            MS02_MSUM.summary_code_B13,
+            MS02_MSUM.iso_file_number_B14,
+            MS02_MSUM.summary_code_B14,
+            MS02_MSUM.iso_file_number_B15,
+            MS02_MSUM.summary_code_B15,
+            MS02_MSUM.iso_file_number_B16,
+            MS02_MSUM.summary_code_B16,
+            MS02_MSKI.key_indicator_code_1,
+            MS02_MSKI.key_indicator_code_2,
+            MS02_MSKI.key_indicator_code_3,
+            MS02_MSKI.key_indicator_code_4,
+            MS02_MSKI.key_indicator_code_5,
+            MS02_MSKI.key_indicator_code_6,
+            MS02_MSKI.key_indicator_code_7,
+            MS02_MSKI.key_indicator_code_8,
+            MS02_MSKI.key_indicator_code_9,
+            MS02_MSKI.key_indicator_code_10,
+            MS02_MSKI.key_indicator_code_11,
+            MS02_MSKI.key_indicator_code_12,
+            MS02_MSKI.key_indicator_code_13,
+            MS02_MSKI.key_indicator_code_14,
+            MS02_MSKI.key_indicator_code_15
 
-from        MS01
+from        MS02
             left join
-                MS01_MSUM
-                on  MS01.response_id    = MS01_MSUM.response_id
-                and MS01.index_MA01     = MS01_MSUM.index_MA01
-                and MS01.index_MO01     = MS01_MSUM.index_MO01
-                and MS01.index_MS01     = MS01_MSUM.index_MS01
+                MS02_MSUM
+                on  MS02.response_id    = MS02_MSUM.response_id
+                and MS02.index_MA01     = MS02_MSUM.index_MA01
+                and MS02.index_MO01     = MS02_MSUM.index_MO01
+                and MS02.index_MS02     = MS02_MSUM.index_MS02
             left join
-                MS01_MSKI
-                on  MS01.response_id    = MS01_MSKI.response_id
-                and MS01.index_MA01     = MS01_MSKI.index_MA01
-                and MS01.index_MO01     = MS01_MSKI.index_MO01
-                and MS01.index_MS01     = MS01_MSKI.index_MS01
-order by    1,2,3,4
+                MS02_MSKI
+                on  MS02.response_id    = MS02_MSKI.response_id
+                and MS02.index_MA01     = MS02_MSKI.index_MA01
+                and MS02.index_MO01     = MS02_MSKI.index_MO01
+                and MS02.index_MS02     = MS02_MSKI.index_MS02
+order by    1,2,3
 ;
