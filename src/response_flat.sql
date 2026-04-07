@@ -1,5 +1,5 @@
 create or replace table
-    edwprodhh.iso.parse_match_report_flatten
+    edwprodhh.iso.response_flat
 as
 with response_example_1 as
 (
