@@ -15,7 +15,7 @@ with MH01 as
                 nullif(trim(substring(response_line,    75,     8)),    '')     as process_date,
                 nullif(trim(substring(response_line,    83,     430)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MH01'
 )
 , MZ01 as
@@ -31,7 +31,7 @@ with MH01 as
                 nullif(trim(substring(response_line,    17,     9)),    '')     as actual_records_transmitted,
                 nullif(trim(substring(response_line,    26,     487)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MZ01'
 )
 

@@ -47,7 +47,7 @@ with MA03 as
                 nullif(trim(substring(response_line,    491,    21)),   '')     as filler,
                 nullif(trim(substring(response_line,    512,    1)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA03'
 )
 , MA04 as
@@ -69,7 +69,7 @@ with MA03 as
                 nullif(trim(substring(response_line,    141,    9)),    '')     as loss_location_postal_code,
                 nullif(trim(substring(response_line,    150,    363)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA04'
 )
 , MA06 as
@@ -103,7 +103,7 @@ with MA03 as
                 nullif(trim(substring(response_line,    449,    1)),    '')     as claim_associated_with_fraud_ring_investigation,
                 nullif(trim(substring(response_line,    450,    63)),   '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA06'
 )
 , MA08 as
@@ -123,7 +123,7 @@ with MA03 as
                 nullif(trim(substring(response_line,    231,    8)),    '')     as date_of_policy_renewal,
                 nullif(trim(substring(response_line,    239,    266)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA08'
 )
 select      MA03.response_id,

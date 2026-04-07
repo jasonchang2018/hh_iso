@@ -61,7 +61,7 @@ with MA01 as
                 nullif(trim(substring(response_line,    503,    9)),    '')     as site_id,
                 nullif(trim(substring(response_line,    512,    1)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA01'
 )
 , MA05 as
@@ -97,7 +97,7 @@ with MA01 as
                 nullif(trim(substring(response_line,    457,    50)),   '')     as filler,
                 nullif(trim(substring(response_line,    507,    6)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA05'
 )
 , MA07 as
@@ -124,7 +124,7 @@ with MA01 as
                 nullif(trim(substring(response_line,    408,    10)),   '')     as underlying_carrier_business_phone,
                 nullif(trim(substring(response_line,    418,    95)),   '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MA07'
 )
 select      MA01.response_id,

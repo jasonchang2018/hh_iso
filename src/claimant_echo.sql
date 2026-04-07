@@ -51,7 +51,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    501,    7)),    '')     as pager_pin,
                 nullif(trim(substring(response_line,    508,    5)),    '')     as routing_misc_information
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MO01'
 )
 , MO01_MEX1 as
@@ -87,7 +87,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    486,    25)),   '')     as claimant_policy_number,
                 nullif(trim(substring(response_line,    511,    2)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX1'
                 and lag_party_indicator = 'MO01'
 )
@@ -139,7 +139,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    489,    2)),    '')     as drivers_license_class,
                 nullif(trim(substring(response_line,    491,    22)),   '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MK01'
                 and lag_party_indicator = 'MO01'
 )
@@ -171,7 +171,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    241,    10)),   '')     as telephone,
                 nullif(trim(substring(response_line,    251,    132)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MACL'
 )
 , MC01 as
@@ -217,7 +217,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    417,    12)),   '')     as filler,
                 nullif(trim(substring(response_line,    429,    84)),   '')     as fillers
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MC01'
 )
 , MC01_MEX3 as
@@ -296,7 +296,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    506,    1)),    '')     as do_not_send_this_coverage_to_cms,
                 nullif(trim(substring(response_line,    507,    6)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX3'
                 and lag_coverage_indicator = 'MC01'
 )
@@ -326,7 +326,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    290,    9)),    '')     as professional_administrator_employer_identification_number,
                 nullif(trim(substring(response_line,    399,    114)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX4'
                 and lag_coverage_indicator = 'MC01'
 )
@@ -393,7 +393,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    511,    1)),    '')     as non_standard_vin_validation,
                 nullif(trim(substring(response_line,    512,    1)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MV01'
 )
 , MV01_MEX3 as
@@ -472,7 +472,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    506,    1)),    '')     as do_not_send_this_coverage_to_cms,
                 nullif(trim(substring(response_line,    507,    6)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX3'
                 and lag_coverage_indicator = 'MV01'
 )
@@ -502,7 +502,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    290,    9)),    '')     as professional_administrator_employer_identification_number,
                 nullif(trim(substring(response_line,    399,    114)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX4'
                 and lag_coverage_indicator = 'MV01'
 )
@@ -525,7 +525,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    113,    50)),   '')     as tag_status,
                 nullif(trim(substring(response_line,    163,    350)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MV04'
 )
 , MV08 as
@@ -565,7 +565,7 @@ with MO01 as
                 nullif(trim(substring(response_line,    317,    20)),   '')     as failed_vin,
                 nullif(trim(substring(response_line,    337,    176)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MV08'
 )
 select      MO01.response_id,

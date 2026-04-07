@@ -48,7 +48,7 @@ with MSP1 as
                 nullif(trim(substring(response_line,    373,    8)),    '')     as date_of_first_doctor_visit_after_accident,
                 nullif(trim(substring(response_line,    381,    132)),  '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MSP1'
 )
 , MSP1_MEX1 as
@@ -85,7 +85,7 @@ with MSP1 as
                 nullif(trim(substring(response_line,    486,    25)),   '')     as claimant_policy_number,
                 nullif(trim(substring(response_line,    511,    2)),    '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MEX1'
                 and lag_party_indicator = 'MSP1'
 )
@@ -138,7 +138,7 @@ with MSP1 as
                 nullif(trim(substring(response_line,    489,    2)),    '')     as drivers_license_class,
                 nullif(trim(substring(response_line,    491,    22)),   '')     as filler
 
-    from        edwprodhh.iso.parse_match_report_flatten
+    from        edwprodhh.iso.response_flat
     where       record_type = 'MK01'
                 and lag_party_indicator = 'MSP1'
 )
