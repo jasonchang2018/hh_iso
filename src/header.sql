@@ -1,5 +1,5 @@
 create or replace table
-    edwprodhh.iso.parse_match_report_header
+    edwprodhh.iso.header
 as
 with MH01 as
 (

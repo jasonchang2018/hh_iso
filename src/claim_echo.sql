@@ -1,5 +1,5 @@
 create or replace table
-    edwprodhh.iso.parse_match_report_claim_echo
+    edwprodhh.iso.claim_echo
 as
 with MA01 as
 (

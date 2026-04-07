@@ -1,5 +1,5 @@
 create or replace table
-    edwprodhh.iso.parse_match_report_claim_match
+    edwprodhh.iso.claim_match
 as
 with MA03 as
 (
