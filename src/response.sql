@@ -221,7 +221,7 @@ create table
 
 
 create or replace procedure
-    edwprodhh.iso.insert_response_from_stage(EXECUTE_TIME TIMESTAMP_LTZ(9))
+    edwprodhh.iso.insert_response(EXECUTE_TIME TIMESTAMP_LTZ(9))
 returns     boolean
 language    sql
 as
@@ -278,10 +278,10 @@ end
 
 
 
-create or replace task
-    edwprodhh.iso.sp_insert_response_from_stage
-    warehouse = analysis_wh
-    schedule = 'USING CRON 0 1 * * * America/Chicago'
-as
-call    edwprodhh.iso.insert_response_from_stage(current_timestamp())
-;
+-- create or replace task
+--     edwprodhh.iso.sp_insert_response
+--     warehouse = analysis_wh
+--     after edwprodhh.iso.iso_root
+-- as
+-- call    edwprodhh.iso.insert_response(current_timestamp())
+-- ;
