@@ -53,7 +53,15 @@ with response_keys as
 
     from        lvl2
 )
+, lvl4 as
+(
+    select      *,
+                max(case when record_type = 'MC02' then index end) over (partition by response_id, index_ma01, index_ma03, index_mo02 order by index asc) as index_mc02,
+                max(case when record_type = 'MV02' then index end) over (partition by response_id, index_ma01, index_ma03, index_mo02 order by index asc) as index_mv02,
+    from        lvl3
+    order by    response_id, index   
+)
 select      *
-from        lvl3
+from        lvl4
 order by    response_id, index
 ;
