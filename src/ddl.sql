@@ -17,10 +17,10 @@ escape_unenclosed_field         = NONE
 ;
 
 
--- create or replace task
---     edwprodhh.iso.iso_root
---     warehouse = analysis_wh
---     schedule = 'USING CRON 0 1 * * * America/Chicago'
--- as
--- select 1 as val
--- ;
+create or replace task
+    edwprodhh.iso.iso_root
+    warehouse = analysis_wh
+    schedule = 'USING CRON 0 1 * * * America/Chicago'
+as
+select 1 as val
+;
