@@ -67,7 +67,7 @@ begin
                     and debtor.packet_idx   not in (select packet_idx from previous_packets)
                     and dimdebtor.drl       not in (select drl from previous_packets)
                     --** Need to exclude based on values in F303-F310 and F323-330. Waiting on Dan and Heather
-        -- limit       50
+        limit       50
     )
     , uh01 as
     (
@@ -394,7 +394,7 @@ begin
                     lpad(rn, 6, '0')                                                        as sequence_number,
                     concat_ws('', sequence_number, concat_no_rn)                            as concat_yes_rn,
                     length(concat_yes_rn) = 512                                             as length_512,
-                    current_date()                                                          as upload_date
+                    current_date() + 1                                                      as upload_date
                     
         from        unioned_post_trailer
         order by    rn
