@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.service_provider_match_summary;
-
     insert into
         edwprodhh.iso.service_provider_match_summary
     (
@@ -113,10 +111,17 @@ begin
         KEY_INDICATOR_CODE_14,
         KEY_INDICATOR_CODE_15
     )
-    with MS02 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       index_ms02 is not null
+                    and response_id not in (select response_id from edwprodhh.iso.service_provider_match_summary)
+    )
+    , MS02 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -124,58 +129,58 @@ begin
                     index_mo01,
                     index_ms02,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     11)),   '')     as iso_file_number_A1,
-                    nullif(trim(substring(response_line,    22,     10)),   '')     as match_reason_code_A1,
-                    nullif(trim(substring(response_line,    32,     11)),   '')     as iso_file_number_A2,
-                    nullif(trim(substring(response_line,    43,     10)),   '')     as match_reason_code_A2,
-                    nullif(trim(substring(response_line,    53,     11)),   '')     as iso_file_number_A3,
-                    nullif(trim(substring(response_line,    64,     10)),   '')     as match_reason_code_A3,
-                    nullif(trim(substring(response_line,    74,     11)),   '')     as iso_file_number_A4,
-                    nullif(trim(substring(response_line,    85,     10)),   '')     as match_reason_code_A4,
-                    nullif(trim(substring(response_line,    95,     11)),   '')     as iso_file_number_A5,
-                    nullif(trim(substring(response_line,    106,    10)),   '')     as match_reason_code_A5,
-                    nullif(trim(substring(response_line,    116,    11)),   '')     as iso_file_number_A6,
-                    nullif(trim(substring(response_line,    127,    10)),   '')     as match_reason_code_A6,
-                    nullif(trim(substring(response_line,    137,    11)),   '')     as iso_file_number_A7,
-                    nullif(trim(substring(response_line,    148,    10)),   '')     as match_reason_code_A7,
-                    nullif(trim(substring(response_line,    158,    11)),   '')     as iso_file_number_A8,
-                    nullif(trim(substring(response_line,    169,    10)),   '')     as match_reason_code_A8,
-                    nullif(trim(substring(response_line,    179,    11)),   '')     as iso_file_number_A9,
-                    nullif(trim(substring(response_line,    190,    10)),   '')     as match_reason_code_A9,
-                    nullif(trim(substring(response_line,    200,    11)),   '')     as iso_file_number_A10,
-                    nullif(trim(substring(response_line,    211,    10)),   '')     as match_reason_code_A10,
-                    nullif(trim(substring(response_line,    221,    11)),   '')     as iso_file_number_A11,
-                    nullif(trim(substring(response_line,    232,    10)),   '')     as match_reason_code_A11,
-                    nullif(trim(substring(response_line,    242,    11)),   '')     as iso_file_number_A12,
-                    nullif(trim(substring(response_line,    253,    10)),   '')     as match_reason_code_A12,
-                    nullif(trim(substring(response_line,    263,    11)),   '')     as iso_file_number_A13,
-                    nullif(trim(substring(response_line,    274,    10)),   '')     as match_reason_code_A13,
-                    nullif(trim(substring(response_line,    284,    11)),   '')     as iso_file_number_A14,
-                    nullif(trim(substring(response_line,    295,    10)),   '')     as match_reason_code_A14,
-                    nullif(trim(substring(response_line,    305,    11)),   '')     as iso_file_number_A15,
-                    nullif(trim(substring(response_line,    316,    10)),   '')     as match_reason_code_A15,
-                    nullif(trim(substring(response_line,    326,    11)),   '')     as iso_file_number_A16,
-                    nullif(trim(substring(response_line,    337,    10)),   '')     as match_reason_code_A16,
-                    nullif(trim(substring(response_line,    347,    11)),   '')     as iso_file_number_A17,
-                    nullif(trim(substring(response_line,    358,    10)),   '')     as match_reason_code_A17,
-                    nullif(trim(substring(response_line,    368,    11)),   '')     as iso_file_number_A18,
-                    nullif(trim(substring(response_line,    379,    10)),   '')     as match_reason_code_A18,
-                    nullif(trim(substring(response_line,    389,    11)),   '')     as iso_file_number_A19,
-                    nullif(trim(substring(response_line,    400,    10)),   '')     as match_reason_code_A19,
-                    nullif(trim(substring(response_line,    410,    11)),   '')     as iso_file_number_A20,
-                    nullif(trim(substring(response_line,    421,    10)),   '')     as match_reason_code_A20,
-                    nullif(trim(substring(response_line,    431,    11)),   '')     as iso_file_number_A21,
-                    nullif(trim(substring(response_line,    442,    10)),   '')     as match_reason_code_A21,
-                    nullif(trim(substring(response_line,    452,    61)),   '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     11)),   '')     as iso_file_number_A1,
+                    nullif(trim(substring(response_body,    22,     10)),   '')     as match_reason_code_A1,
+                    nullif(trim(substring(response_body,    32,     11)),   '')     as iso_file_number_A2,
+                    nullif(trim(substring(response_body,    43,     10)),   '')     as match_reason_code_A2,
+                    nullif(trim(substring(response_body,    53,     11)),   '')     as iso_file_number_A3,
+                    nullif(trim(substring(response_body,    64,     10)),   '')     as match_reason_code_A3,
+                    nullif(trim(substring(response_body,    74,     11)),   '')     as iso_file_number_A4,
+                    nullif(trim(substring(response_body,    85,     10)),   '')     as match_reason_code_A4,
+                    nullif(trim(substring(response_body,    95,     11)),   '')     as iso_file_number_A5,
+                    nullif(trim(substring(response_body,    106,    10)),   '')     as match_reason_code_A5,
+                    nullif(trim(substring(response_body,    116,    11)),   '')     as iso_file_number_A6,
+                    nullif(trim(substring(response_body,    127,    10)),   '')     as match_reason_code_A6,
+                    nullif(trim(substring(response_body,    137,    11)),   '')     as iso_file_number_A7,
+                    nullif(trim(substring(response_body,    148,    10)),   '')     as match_reason_code_A7,
+                    nullif(trim(substring(response_body,    158,    11)),   '')     as iso_file_number_A8,
+                    nullif(trim(substring(response_body,    169,    10)),   '')     as match_reason_code_A8,
+                    nullif(trim(substring(response_body,    179,    11)),   '')     as iso_file_number_A9,
+                    nullif(trim(substring(response_body,    190,    10)),   '')     as match_reason_code_A9,
+                    nullif(trim(substring(response_body,    200,    11)),   '')     as iso_file_number_A10,
+                    nullif(trim(substring(response_body,    211,    10)),   '')     as match_reason_code_A10,
+                    nullif(trim(substring(response_body,    221,    11)),   '')     as iso_file_number_A11,
+                    nullif(trim(substring(response_body,    232,    10)),   '')     as match_reason_code_A11,
+                    nullif(trim(substring(response_body,    242,    11)),   '')     as iso_file_number_A12,
+                    nullif(trim(substring(response_body,    253,    10)),   '')     as match_reason_code_A12,
+                    nullif(trim(substring(response_body,    263,    11)),   '')     as iso_file_number_A13,
+                    nullif(trim(substring(response_body,    274,    10)),   '')     as match_reason_code_A13,
+                    nullif(trim(substring(response_body,    284,    11)),   '')     as iso_file_number_A14,
+                    nullif(trim(substring(response_body,    295,    10)),   '')     as match_reason_code_A14,
+                    nullif(trim(substring(response_body,    305,    11)),   '')     as iso_file_number_A15,
+                    nullif(trim(substring(response_body,    316,    10)),   '')     as match_reason_code_A15,
+                    nullif(trim(substring(response_body,    326,    11)),   '')     as iso_file_number_A16,
+                    nullif(trim(substring(response_body,    337,    10)),   '')     as match_reason_code_A16,
+                    nullif(trim(substring(response_body,    347,    11)),   '')     as iso_file_number_A17,
+                    nullif(trim(substring(response_body,    358,    10)),   '')     as match_reason_code_A17,
+                    nullif(trim(substring(response_body,    368,    11)),   '')     as iso_file_number_A18,
+                    nullif(trim(substring(response_body,    379,    10)),   '')     as match_reason_code_A18,
+                    nullif(trim(substring(response_body,    389,    11)),   '')     as iso_file_number_A19,
+                    nullif(trim(substring(response_body,    400,    10)),   '')     as match_reason_code_A19,
+                    nullif(trim(substring(response_body,    410,    11)),   '')     as iso_file_number_A20,
+                    nullif(trim(substring(response_body,    421,    10)),   '')     as match_reason_code_A20,
+                    nullif(trim(substring(response_body,    431,    11)),   '')     as iso_file_number_A21,
+                    nullif(trim(substring(response_body,    442,    10)),   '')     as match_reason_code_A21,
+                    nullif(trim(substring(response_body,    452,    61)),   '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MS02'
     )
     , MS02_MSUM as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -183,58 +188,58 @@ begin
                     index_mo01,
                     index_ms02,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     2)),    '')     as total_number_of_matches_by_loss_type,
-                    nullif(trim(substring(response_line,    13,     2)),    '')     as total_number_of_matches_with_siu_involvement,
-                    nullif(trim(substring(response_line,    15,     2)),    '')     as total_number_of_matches_by_name,
-                    nullif(trim(substring(response_line,    17,     2)),    '')     as total_number_of_matches_by_address,
-                    nullif(trim(substring(response_line,    19,     2)),    '')     as total_number_of_matches_by_ssn,
-                    nullif(trim(substring(response_line,    21,     2)),    '')     as total_number_of_matches_by_phone,
-                    nullif(trim(substring(response_line,    23,     2)),    '')     as total_number_of_matches_by_drivers_license,
-                    nullif(trim(substring(response_line,    25,     2)),    '')     as total_number_of_matches_by_vin,
-                    nullif(trim(substring(response_line,    27,     2)),    '')     as total_number_of_matches_by_license_plate,
-                    nullif(trim(substring(response_line,    29,     11)),   '')     as iso_file_number_B1,
-                    nullif(trim(substring(response_line,    40,     18)),   '')     as summary_code_B1,
-                    nullif(trim(substring(response_line,    58,     11)),   '')     as iso_file_number_B2,
-                    nullif(trim(substring(response_line,    69,     18)),   '')     as summary_code_B2,
-                    nullif(trim(substring(response_line,    87,     11)),   '')     as iso_file_number_B3,
-                    nullif(trim(substring(response_line,    98,     18)),   '')     as summary_code_B3,
-                    nullif(trim(substring(response_line,    116,    11)),   '')     as iso_file_number_B4,
-                    nullif(trim(substring(response_line,    127,    18)),   '')     as summary_code_B4,
-                    nullif(trim(substring(response_line,    145,    11)),   '')     as iso_file_number_B5,
-                    nullif(trim(substring(response_line,    156,    18)),   '')     as summary_code_B5,
-                    nullif(trim(substring(response_line,    174,    11)),   '')     as iso_file_number_B6,
-                    nullif(trim(substring(response_line,    185,    18)),   '')     as summary_code_B6,
-                    nullif(trim(substring(response_line,    203,    11)),   '')     as iso_file_number_B7,
-                    nullif(trim(substring(response_line,    214,    18)),   '')     as summary_code_B7,
-                    nullif(trim(substring(response_line,    232,    11)),   '')     as iso_file_number_B8,
-                    nullif(trim(substring(response_line,    243,    18)),   '')     as summary_code_B8,
-                    nullif(trim(substring(response_line,    261,    11)),   '')     as iso_file_number_B9,
-                    nullif(trim(substring(response_line,    272,    18)),   '')     as summary_code_B9,
-                    nullif(trim(substring(response_line,    290,    11)),   '')     as iso_file_number_B10,
-                    nullif(trim(substring(response_line,    301,    18)),   '')     as summary_code_B10,
-                    nullif(trim(substring(response_line,    319,    11)),   '')     as iso_file_number_B11,
-                    nullif(trim(substring(response_line,    330,    18)),   '')     as summary_code_B11,
-                    nullif(trim(substring(response_line,    348,    11)),   '')     as iso_file_number_B12,
-                    nullif(trim(substring(response_line,    359,    18)),   '')     as summary_code_B12,
-                    nullif(trim(substring(response_line,    377,    11)),   '')     as iso_file_number_B13,
-                    nullif(trim(substring(response_line,    388,    18)),   '')     as summary_code_B13,
-                    nullif(trim(substring(response_line,    406,    11)),   '')     as iso_file_number_B14,
-                    nullif(trim(substring(response_line,    417,    18)),   '')     as summary_code_B14,
-                    nullif(trim(substring(response_line,    435,    11)),   '')     as iso_file_number_B15,
-                    nullif(trim(substring(response_line,    446,    18)),   '')     as summary_code_B15,
-                    nullif(trim(substring(response_line,    464,    11)),   '')     as iso_file_number_B16,
-                    nullif(trim(substring(response_line,    475,    18)),   '')     as summary_code_B16,
-                    nullif(trim(substring(response_line,    493,    20)),   '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     2)),    '')     as total_number_of_matches_by_loss_type,
+                    nullif(trim(substring(response_body,    13,     2)),    '')     as total_number_of_matches_with_siu_involvement,
+                    nullif(trim(substring(response_body,    15,     2)),    '')     as total_number_of_matches_by_name,
+                    nullif(trim(substring(response_body,    17,     2)),    '')     as total_number_of_matches_by_address,
+                    nullif(trim(substring(response_body,    19,     2)),    '')     as total_number_of_matches_by_ssn,
+                    nullif(trim(substring(response_body,    21,     2)),    '')     as total_number_of_matches_by_phone,
+                    nullif(trim(substring(response_body,    23,     2)),    '')     as total_number_of_matches_by_drivers_license,
+                    nullif(trim(substring(response_body,    25,     2)),    '')     as total_number_of_matches_by_vin,
+                    nullif(trim(substring(response_body,    27,     2)),    '')     as total_number_of_matches_by_license_plate,
+                    nullif(trim(substring(response_body,    29,     11)),   '')     as iso_file_number_B1,
+                    nullif(trim(substring(response_body,    40,     18)),   '')     as summary_code_B1,
+                    nullif(trim(substring(response_body,    58,     11)),   '')     as iso_file_number_B2,
+                    nullif(trim(substring(response_body,    69,     18)),   '')     as summary_code_B2,
+                    nullif(trim(substring(response_body,    87,     11)),   '')     as iso_file_number_B3,
+                    nullif(trim(substring(response_body,    98,     18)),   '')     as summary_code_B3,
+                    nullif(trim(substring(response_body,    116,    11)),   '')     as iso_file_number_B4,
+                    nullif(trim(substring(response_body,    127,    18)),   '')     as summary_code_B4,
+                    nullif(trim(substring(response_body,    145,    11)),   '')     as iso_file_number_B5,
+                    nullif(trim(substring(response_body,    156,    18)),   '')     as summary_code_B5,
+                    nullif(trim(substring(response_body,    174,    11)),   '')     as iso_file_number_B6,
+                    nullif(trim(substring(response_body,    185,    18)),   '')     as summary_code_B6,
+                    nullif(trim(substring(response_body,    203,    11)),   '')     as iso_file_number_B7,
+                    nullif(trim(substring(response_body,    214,    18)),   '')     as summary_code_B7,
+                    nullif(trim(substring(response_body,    232,    11)),   '')     as iso_file_number_B8,
+                    nullif(trim(substring(response_body,    243,    18)),   '')     as summary_code_B8,
+                    nullif(trim(substring(response_body,    261,    11)),   '')     as iso_file_number_B9,
+                    nullif(trim(substring(response_body,    272,    18)),   '')     as summary_code_B9,
+                    nullif(trim(substring(response_body,    290,    11)),   '')     as iso_file_number_B10,
+                    nullif(trim(substring(response_body,    301,    18)),   '')     as summary_code_B10,
+                    nullif(trim(substring(response_body,    319,    11)),   '')     as iso_file_number_B11,
+                    nullif(trim(substring(response_body,    330,    18)),   '')     as summary_code_B11,
+                    nullif(trim(substring(response_body,    348,    11)),   '')     as iso_file_number_B12,
+                    nullif(trim(substring(response_body,    359,    18)),   '')     as summary_code_B12,
+                    nullif(trim(substring(response_body,    377,    11)),   '')     as iso_file_number_B13,
+                    nullif(trim(substring(response_body,    388,    18)),   '')     as summary_code_B13,
+                    nullif(trim(substring(response_body,    406,    11)),   '')     as iso_file_number_B14,
+                    nullif(trim(substring(response_body,    417,    18)),   '')     as summary_code_B14,
+                    nullif(trim(substring(response_body,    435,    11)),   '')     as iso_file_number_B15,
+                    nullif(trim(substring(response_body,    446,    18)),   '')     as summary_code_B15,
+                    nullif(trim(substring(response_body,    464,    11)),   '')     as iso_file_number_B16,
+                    nullif(trim(substring(response_body,    475,    18)),   '')     as summary_code_B16,
+                    nullif(trim(substring(response_body,    493,    20)),   '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MSUM'
                     and lag_match_indicator = 'MS02'
     )
     , MS02_MSKI as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -242,25 +247,25 @@ begin
                     index_mo01,
                     index_ms02,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     2)),    '')     as key_indicator_code_1,
-                    nullif(trim(substring(response_line,    13,     2)),    '')     as key_indicator_code_2,
-                    nullif(trim(substring(response_line,    15,     2)),    '')     as key_indicator_code_3,
-                    nullif(trim(substring(response_line,    17,     2)),    '')     as key_indicator_code_4,
-                    nullif(trim(substring(response_line,    19,     2)),    '')     as key_indicator_code_5,
-                    nullif(trim(substring(response_line,    21,     2)),    '')     as key_indicator_code_6,
-                    nullif(trim(substring(response_line,    23,     2)),    '')     as key_indicator_code_7,
-                    nullif(trim(substring(response_line,    25,     2)),    '')     as key_indicator_code_8,
-                    nullif(trim(substring(response_line,    27,     2)),    '')     as key_indicator_code_9,
-                    nullif(trim(substring(response_line,    29,     2)),    '')     as key_indicator_code_10,
-                    nullif(trim(substring(response_line,    31,     2)),    '')     as key_indicator_code_11,
-                    nullif(trim(substring(response_line,    33,     2)),    '')     as key_indicator_code_12,
-                    nullif(trim(substring(response_line,    35,     2)),    '')     as key_indicator_code_13,
-                    nullif(trim(substring(response_line,    37,     2)),    '')     as key_indicator_code_14,
-                    nullif(trim(substring(response_line,    39,     2)),    '')     as key_indicator_code_15,
-                    nullif(trim(substring(response_line,    41,     472)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     2)),    '')     as key_indicator_code_1,
+                    nullif(trim(substring(response_body,    13,     2)),    '')     as key_indicator_code_2,
+                    nullif(trim(substring(response_body,    15,     2)),    '')     as key_indicator_code_3,
+                    nullif(trim(substring(response_body,    17,     2)),    '')     as key_indicator_code_4,
+                    nullif(trim(substring(response_body,    19,     2)),    '')     as key_indicator_code_5,
+                    nullif(trim(substring(response_body,    21,     2)),    '')     as key_indicator_code_6,
+                    nullif(trim(substring(response_body,    23,     2)),    '')     as key_indicator_code_7,
+                    nullif(trim(substring(response_body,    25,     2)),    '')     as key_indicator_code_8,
+                    nullif(trim(substring(response_body,    27,     2)),    '')     as key_indicator_code_9,
+                    nullif(trim(substring(response_body,    29,     2)),    '')     as key_indicator_code_10,
+                    nullif(trim(substring(response_body,    31,     2)),    '')     as key_indicator_code_11,
+                    nullif(trim(substring(response_body,    33,     2)),    '')     as key_indicator_code_12,
+                    nullif(trim(substring(response_body,    35,     2)),    '')     as key_indicator_code_13,
+                    nullif(trim(substring(response_body,    37,     2)),    '')     as key_indicator_code_14,
+                    nullif(trim(substring(response_body,    39,     2)),    '')     as key_indicator_code_15,
+                    nullif(trim(substring(response_body,    41,     472)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MSKI'
                     and lag_match_indicator = 'MS02'
     )
@@ -390,10 +395,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_service_provider_match_summary
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_service_provider_match_summary();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_service_provider_match_summary
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_service_provider_match_summary();
+;
