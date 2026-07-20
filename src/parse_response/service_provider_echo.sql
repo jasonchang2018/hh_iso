@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.service_provider_echo;
-
     insert into
         edwprodhh.iso.service_provider_echo
     (
@@ -98,10 +96,17 @@ begin
         DRIVERS_LICENSE_STATE_2,
         DRIVERS_LICENSE_CLASS_2    
     )
-    with MSP1 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       index_msp1 is not null
+                    and response_id not in (select response_id from edwprodhh.iso.service_provider_echo)
+    )
+    , MSP1 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -109,48 +114,48 @@ begin
                     index_mo01,
                     index_msp1,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     2)),    '')     as role_in_the_claim,
-                    nullif(trim(substring(response_line,    13,     1)),    '')     as individual_business_indicator,
-                    nullif(trim(substring(response_line,    14,     70)),   '')     as business_name_or,
-                    nullif(trim(substring(response_line,    14,     30)),   '')     as last_name,
-                    nullif(trim(substring(response_line,    44,     20)),   '')     as first_name,
-                    nullif(trim(substring(response_line,    64,     20)),   '')     as middle_name,
-                    nullif(trim(substring(response_line,    84,     8)),    '')     as date_of_birth_dob,
-                    nullif(trim(substring(response_line,    92,     1)),    '')     as gender,
-                    nullif(trim(substring(response_line,    93,     9)),    '')     as social_security_number_ssn,
-                    nullif(trim(substring(response_line,    102,    1)),    '')     as ssn_code,
-                    nullif(trim(substring(response_line,    103,    4)),    '')     as ssn_issued_from_date,
-                    nullif(trim(substring(response_line,    107,    4)),    '')     as ssn_issued_to_date,
-                    nullif(trim(substring(response_line,    111,    2)),    '')     as ssn_issuing_state,
-                    nullif(trim(substring(response_line,    113,    9)),    '')     as tax_identification_number_tin,
-                    nullif(trim(substring(response_line,    122,    1)),    '')     as tin_code,
-                    nullif(trim(substring(response_line,    123,    25)),   '')     as tin_issuing_city,
-                    nullif(trim(substring(response_line,    148,    2)),    '')     as tin_issuing_state,
-                    nullif(trim(substring(response_line,    150,    20)),   '')     as drivers_license_number,
-                    nullif(trim(substring(response_line,    170,    2)),    '')     as drivers_license_state,
-                    nullif(trim(substring(response_line,    172,    15)),   '')     as medical_professional_license,
-                    nullif(trim(substring(response_line,    187,    50)),   '')     as address_information_line_1,
-                    nullif(trim(substring(response_line,    237,    50)),   '')     as address_information_line_2,
-                    nullif(trim(substring(response_line,    287,    25)),   '')     as city,
-                    nullif(trim(substring(response_line,    312,    2)),    '')     as state,
-                    nullif(trim(substring(response_line,    314,    9)),    '')     as postal_code,
-                    nullif(trim(substring(response_line,    323,    3)),    '')     as country_code,
-                    nullif(trim(substring(response_line,    326,    10)),   '')     as home_telephone,
-                    nullif(trim(substring(response_line,    336,    10)),   '')     as business_telephone,
-                    nullif(trim(substring(response_line,    346,    10)),   '')     as cellular_telephone,
-                    nullif(trim(substring(response_line,    356,    10)),   '')     as pager_number,
-                    nullif(trim(substring(response_line,    366,    7)),    '')     as pager_pin,
-                    nullif(trim(substring(response_line,    373,    8)),    '')     as date_of_first_doctor_visit_after_accident,
-                    nullif(trim(substring(response_line,    381,    132)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     2)),    '')     as role_in_the_claim,
+                    nullif(trim(substring(response_body,    13,     1)),    '')     as individual_business_indicator,
+                    nullif(trim(substring(response_body,    14,     70)),   '')     as business_name_or,
+                    nullif(trim(substring(response_body,    14,     30)),   '')     as last_name,
+                    nullif(trim(substring(response_body,    44,     20)),   '')     as first_name,
+                    nullif(trim(substring(response_body,    64,     20)),   '')     as middle_name,
+                    nullif(trim(substring(response_body,    84,     8)),    '')     as date_of_birth_dob,
+                    nullif(trim(substring(response_body,    92,     1)),    '')     as gender,
+                    nullif(trim(substring(response_body,    93,     9)),    '')     as social_security_number_ssn,
+                    nullif(trim(substring(response_body,    102,    1)),    '')     as ssn_code,
+                    nullif(trim(substring(response_body,    103,    4)),    '')     as ssn_issued_from_date,
+                    nullif(trim(substring(response_body,    107,    4)),    '')     as ssn_issued_to_date,
+                    nullif(trim(substring(response_body,    111,    2)),    '')     as ssn_issuing_state,
+                    nullif(trim(substring(response_body,    113,    9)),    '')     as tax_identification_number_tin,
+                    nullif(trim(substring(response_body,    122,    1)),    '')     as tin_code,
+                    nullif(trim(substring(response_body,    123,    25)),   '')     as tin_issuing_city,
+                    nullif(trim(substring(response_body,    148,    2)),    '')     as tin_issuing_state,
+                    nullif(trim(substring(response_body,    150,    20)),   '')     as drivers_license_number,
+                    nullif(trim(substring(response_body,    170,    2)),    '')     as drivers_license_state,
+                    nullif(trim(substring(response_body,    172,    15)),   '')     as medical_professional_license,
+                    nullif(trim(substring(response_body,    187,    50)),   '')     as address_information_line_1,
+                    nullif(trim(substring(response_body,    237,    50)),   '')     as address_information_line_2,
+                    nullif(trim(substring(response_body,    287,    25)),   '')     as city,
+                    nullif(trim(substring(response_body,    312,    2)),    '')     as state,
+                    nullif(trim(substring(response_body,    314,    9)),    '')     as postal_code,
+                    nullif(trim(substring(response_body,    323,    3)),    '')     as country_code,
+                    nullif(trim(substring(response_body,    326,    10)),   '')     as home_telephone,
+                    nullif(trim(substring(response_body,    336,    10)),   '')     as business_telephone,
+                    nullif(trim(substring(response_body,    346,    10)),   '')     as cellular_telephone,
+                    nullif(trim(substring(response_body,    356,    10)),   '')     as pager_number,
+                    nullif(trim(substring(response_body,    366,    7)),    '')     as pager_pin,
+                    nullif(trim(substring(response_body,    373,    8)),    '')     as date_of_first_doctor_visit_after_accident,
+                    nullif(trim(substring(response_body,    381,    132)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MSP1'
     )
     , MSP1_MEX1 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -158,37 +163,37 @@ begin
                     index_mo01,
                     index_msp1,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     1)),    '')     as party_subject_to_siu_investigation,
-                    nullif(trim(substring(response_line,    12,     1)),    '')     as claim_or_part_of_claim_for_this_party_not_paid_after_investigation,
-                    nullif(trim(substring(response_line,    13,     1)),    '')     as party_was_subject_to_an_enforcement_action_criminal_indictment_professional_disciplinary_action,
-                    nullif(trim(substring(response_line,    14,     1)),    '')     as claim_for_this_party_meets_criteria_for_fraud_bureau_reporting,
-                    nullif(trim(substring(response_line,    15,     1)),    '')     as party_associated_with_nicb_alert,
-                    nullif(trim(substring(response_line,    16,     47)),   '')     as filler,
-                    nullif(trim(substring(response_line,    63,     1)),    '')     as was_driver_distracted,
-                    nullif(trim(substring(response_line,    64,     1)),    '')     as filler,
-                    nullif(trim(substring(response_line,    65,     1)),    '')     as medicaid_eligible_indicator,
-                    nullif(trim(substring(response_line,    66,     8)),    '')     as date_of_death,
-                    nullif(trim(substring(response_line,    74,     1)),    '')     as medicare_eligible_indicator,
-                    nullif(trim(substring(response_line,    75,     1)),    '')     as do_not_send_this_party_to_cms_indicator,
-                    nullif(trim(substring(response_line,    76,     12)),   '')     as injured_party_hicn_mbi,
-                    nullif(trim(substring(response_line,    88,     1)),    '')     as stop_querying_cms_to_determine_medicare_eligibility_for_this_party,
-                    nullif(trim(substring(response_line,    89,     50)),   '')     as email_address,
-                    nullif(trim(substring(response_line,    139,    2)),    '')     as drivers_license_class,
-                    nullif(trim(substring(response_line,    141,    201)),  '')     as filler,
-                    nullif(trim(substring(response_line,    342,    114)),  '')     as filler,
-                    nullif(trim(substring(response_line,    456,    30)),   '')     as claimant_insurance_company,
-                    nullif(trim(substring(response_line,    486,    25)),   '')     as claimant_policy_number,
-                    nullif(trim(substring(response_line,    511,    2)),    '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     1)),    '')     as party_subject_to_siu_investigation,
+                    nullif(trim(substring(response_body,    12,     1)),    '')     as claim_or_part_of_claim_for_this_party_not_paid_after_investigation,
+                    nullif(trim(substring(response_body,    13,     1)),    '')     as party_was_subject_to_an_enforcement_action_criminal_indictment_professional_disciplinary_action,
+                    nullif(trim(substring(response_body,    14,     1)),    '')     as claim_for_this_party_meets_criteria_for_fraud_bureau_reporting,
+                    nullif(trim(substring(response_body,    15,     1)),    '')     as party_associated_with_nicb_alert,
+                    nullif(trim(substring(response_body,    16,     47)),   '')     as filler,
+                    nullif(trim(substring(response_body,    63,     1)),    '')     as was_driver_distracted,
+                    nullif(trim(substring(response_body,    64,     1)),    '')     as filler,
+                    nullif(trim(substring(response_body,    65,     1)),    '')     as medicaid_eligible_indicator,
+                    nullif(trim(substring(response_body,    66,     8)),    '')     as date_of_death,
+                    nullif(trim(substring(response_body,    74,     1)),    '')     as medicare_eligible_indicator,
+                    nullif(trim(substring(response_body,    75,     1)),    '')     as do_not_send_this_party_to_cms_indicator,
+                    nullif(trim(substring(response_body,    76,     12)),   '')     as injured_party_hicn_mbi,
+                    nullif(trim(substring(response_body,    88,     1)),    '')     as stop_querying_cms_to_determine_medicare_eligibility_for_this_party,
+                    nullif(trim(substring(response_body,    89,     50)),   '')     as email_address,
+                    nullif(trim(substring(response_body,    139,    2)),    '')     as drivers_license_class,
+                    nullif(trim(substring(response_body,    141,    201)),  '')     as filler,
+                    nullif(trim(substring(response_body,    342,    114)),  '')     as filler,
+                    nullif(trim(substring(response_body,    456,    30)),   '')     as claimant_insurance_company,
+                    nullif(trim(substring(response_body,    486,    25)),   '')     as claimant_policy_number,
+                    nullif(trim(substring(response_body,    511,    2)),    '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MEX1'
                     and lag_party_indicator = 'MSP1'
     )
     , MSP1_MK01 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -196,45 +201,45 @@ begin
                     index_mo01,
                     index_msp1,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     1)),    '')     as individual_business_indicator,
-                    nullif(trim(substring(response_line,    12,     70)),   '')     as business_name_or,
-                    nullif(trim(substring(response_line,    12,     30)),   '')     as last_name,
-                    nullif(trim(substring(response_line,    42,     20)),   '')     as first_name,
-                    nullif(trim(substring(response_line,    62,     20)),   '')     as middle_name,
-                    nullif(trim(substring(response_line,    82,     8)),    '')     as date_of_birth_dob,
-                    nullif(trim(substring(response_line,    90,     1)),    '')     as gender,
-                    nullif(trim(substring(response_line,    91,     9)),    '')     as social_security_number_ssn,
-                    nullif(trim(substring(response_line,    100,    1)),    '')     as ssn_code,
-                    nullif(trim(substring(response_line,    101,    4)),    '')     as ssn_issued_from_date,
-                    nullif(trim(substring(response_line,    105,    4)),    '')     as ssn_issued_to_date,
-                    nullif(trim(substring(response_line,    109,    2)),    '')     as ssn_issuing_state,
-                    nullif(trim(substring(response_line,    111,    30)),   '')     as death_master_last_name,
-                    nullif(trim(substring(response_line,    141,    20)),   '')     as death_master_first_name,
-                    nullif(trim(substring(response_line,    161,    8)),    '')     as date_of_death,
-                    nullif(trim(substring(response_line,    169,    25)),   '')     as city_of_death,
-                    nullif(trim(substring(response_line,    194,    2)),    '')     as state_of_death,
-                    nullif(trim(substring(response_line,    196,    9)),    '')     as tax_identification_number_tin,
-                    nullif(trim(substring(response_line,    205,    1)),    '')     as tin_code,
-                    nullif(trim(substring(response_line,    206,    25)),   '')     as tin_issuing_city,
-                    nullif(trim(substring(response_line,    231,    2)),    '')     as tin_issuing_state,
-                    nullif(trim(substring(response_line,    233,    15)),   '')     as medical_professional_license,
-                    nullif(trim(substring(response_line,    248,    50)),   '')     as address_information_line_1,
-                    nullif(trim(substring(response_line,    298,    50)),   '')     as address_information_line_2,
-                    nullif(trim(substring(response_line,    348,    25)),   '')     as city,
-                    nullif(trim(substring(response_line,    373,    2)),    '')     as state,
-                    nullif(trim(substring(response_line,    375,    9)),    '')     as postal_code,
-                    nullif(trim(substring(response_line,    384,    3)),    '')     as country_code,
-                    nullif(trim(substring(response_line,    387,    10)),   '')     as home_telephone,
-                    nullif(trim(substring(response_line,    397,    10)),   '')     as business_telephone,
-                    nullif(trim(substring(response_line,    407,    10)),   '')     as cellular_telephone,
-                    nullif(trim(substring(response_line,    417,    50)),   '')     as email_address,
-                    nullif(trim(substring(response_line,    467,    20)),   '')     as drivers_license_number,
-                    nullif(trim(substring(response_line,    487,    2)),    '')     as drivers_license_state,
-                    nullif(trim(substring(response_line,    489,    2)),    '')     as drivers_license_class,
-                    nullif(trim(substring(response_line,    491,    22)),   '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     1)),    '')     as individual_business_indicator,
+                    nullif(trim(substring(response_body,    12,     70)),   '')     as business_name_or,
+                    nullif(trim(substring(response_body,    12,     30)),   '')     as last_name,
+                    nullif(trim(substring(response_body,    42,     20)),   '')     as first_name,
+                    nullif(trim(substring(response_body,    62,     20)),   '')     as middle_name,
+                    nullif(trim(substring(response_body,    82,     8)),    '')     as date_of_birth_dob,
+                    nullif(trim(substring(response_body,    90,     1)),    '')     as gender,
+                    nullif(trim(substring(response_body,    91,     9)),    '')     as social_security_number_ssn,
+                    nullif(trim(substring(response_body,    100,    1)),    '')     as ssn_code,
+                    nullif(trim(substring(response_body,    101,    4)),    '')     as ssn_issued_from_date,
+                    nullif(trim(substring(response_body,    105,    4)),    '')     as ssn_issued_to_date,
+                    nullif(trim(substring(response_body,    109,    2)),    '')     as ssn_issuing_state,
+                    nullif(trim(substring(response_body,    111,    30)),   '')     as death_master_last_name,
+                    nullif(trim(substring(response_body,    141,    20)),   '')     as death_master_first_name,
+                    nullif(trim(substring(response_body,    161,    8)),    '')     as date_of_death,
+                    nullif(trim(substring(response_body,    169,    25)),   '')     as city_of_death,
+                    nullif(trim(substring(response_body,    194,    2)),    '')     as state_of_death,
+                    nullif(trim(substring(response_body,    196,    9)),    '')     as tax_identification_number_tin,
+                    nullif(trim(substring(response_body,    205,    1)),    '')     as tin_code,
+                    nullif(trim(substring(response_body,    206,    25)),   '')     as tin_issuing_city,
+                    nullif(trim(substring(response_body,    231,    2)),    '')     as tin_issuing_state,
+                    nullif(trim(substring(response_body,    233,    15)),   '')     as medical_professional_license,
+                    nullif(trim(substring(response_body,    248,    50)),   '')     as address_information_line_1,
+                    nullif(trim(substring(response_body,    298,    50)),   '')     as address_information_line_2,
+                    nullif(trim(substring(response_body,    348,    25)),   '')     as city,
+                    nullif(trim(substring(response_body,    373,    2)),    '')     as state,
+                    nullif(trim(substring(response_body,    375,    9)),    '')     as postal_code,
+                    nullif(trim(substring(response_body,    384,    3)),    '')     as country_code,
+                    nullif(trim(substring(response_body,    387,    10)),   '')     as home_telephone,
+                    nullif(trim(substring(response_body,    397,    10)),   '')     as business_telephone,
+                    nullif(trim(substring(response_body,    407,    10)),   '')     as cellular_telephone,
+                    nullif(trim(substring(response_body,    417,    50)),   '')     as email_address,
+                    nullif(trim(substring(response_body,    467,    20)),   '')     as drivers_license_number,
+                    nullif(trim(substring(response_body,    487,    2)),    '')     as drivers_license_state,
+                    nullif(trim(substring(response_body,    489,    2)),    '')     as drivers_license_class,
+                    nullif(trim(substring(response_body,    491,    22)),   '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MK01'
                     and lag_party_indicator = 'MSP1'
     )
@@ -349,10 +354,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_service_provider_echo
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_service_provider_echo();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_service_provider_echo
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_service_provider_echo();
+;
