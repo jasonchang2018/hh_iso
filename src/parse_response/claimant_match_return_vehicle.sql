@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.claimant_match_return_vehicle;
-
     insert into
         edwprodhh.iso.claimant_match_return_vehicle
     (
@@ -55,10 +53,17 @@ begin
         VEHICLE_DISPOSITION,
         ESTIMATE_AMOUNT    
     )
-    with MV02 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       index_mo02 is not null
+                    and response_id not in (select response_id from edwprodhh.iso.claimant_match_return_vehicle)
+    )
+    , MV02 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -67,51 +72,51 @@ begin
                     index_mo02,
                     index_mv02,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     55)),   '')     as adjusting_company_name,
-                    nullif(trim(substring(response_line,    66,     30)),   '')     as adjuster_last_name,
-                    nullif(trim(substring(response_line,    96,     20)),   '')     as adjuster_first_name,
-                    nullif(trim(substring(response_line,    116,    20)),   '')     as adjuster_middle_initial_name,
-                    nullif(trim(substring(response_line,    136,    10)),   '')     as adjuster_telephone_number,
-                    nullif(trim(substring(response_line,    146,    4)),    '')     as loss_type,
-                    nullif(trim(substring(response_line,    150,    4)),    '')     as coverage_type,
-                    nullif(trim(substring(response_line,    154,    4)),    '')     as vehicle_year,
-                    nullif(trim(substring(response_line,    158,    35)),   '')     as vehicle_make_description,
-                    nullif(trim(substring(response_line,    193,    35)),   '')     as vehicle_model_description,
-                    nullif(trim(substring(response_line,    228,    2)),    '')     as vehicle_style,
-                    nullif(trim(substring(response_line,    230,    2)),    '')     as vehicle_type,
-                    nullif(trim(substring(response_line,    232,    6)),    '')     as vehicle_color,
-                    nullif(trim(substring(response_line,    238,    20)),   '')     as vin,
-                    nullif(trim(substring(response_line,    258,    1)),    '')     as vin_validation,
-                    nullif(trim(substring(response_line,    259,    1)),    '')     as more_match_indicator,
-                    nullif(trim(substring(response_line,    260,    14)),   '')     as engine_serial_no,
-                    nullif(trim(substring(response_line,    274,    14)),   '')     as transmission_serial_no,
-                    nullif(trim(substring(response_line,    288,    14)),   '')     as chassis_serial_no,
-                    nullif(trim(substring(response_line,    302,    10)),   '')     as vehicle_odometer_reading,
-                    nullif(trim(substring(response_line,    312,    2)),    '')     as license_plate_type,
-                    nullif(trim(substring(response_line,    314,    10)),   '')     as license_plate_number,
-                    nullif(trim(substring(response_line,    324,    2)),    '')     as license_plate_state,
-                    nullif(trim(substring(response_line,    326,    4)),    '')     as last_year_registered,
-                    nullif(trim(substring(response_line,    330,    1)),    '')     as more_match_indicator_2,
-                    nullif(trim(substring(response_line,    331,    2)),    '')     as anti_theft_device_type,
-                    nullif(trim(substring(response_line,    333,    2)),    '')     as point_of_impact,
-                    nullif(trim(substring(response_line,    335,    1)),    '')     as driver_airbag_status,
-                    nullif(trim(substring(response_line,    336,    1)),    '')     as passenger_airbag_status,
-                    nullif(trim(substring(response_line,    337,    1)),    '')     as left_side_airbag_status,
-                    nullif(trim(substring(response_line,    338,    1)),    '')     as right_side_airbag_status,
-                    nullif(trim(substring(response_line,    339,    1)),    '')     as theft_type_indicator,
-                    nullif(trim(substring(response_line,    340,    3)),    '')     as claim_status,
-                    nullif(trim(substring(response_line,    343,    1)),    '')     as suit_indicator,
-                    nullif(trim(substring(response_line,    344,    11)),   '')     as filler,
-                    nullif(trim(substring(response_line,    355,    11)),   '')     as settlement_amount,
-                    nullif(trim(substring(response_line,    366,    8)),    '')     as date_claim_closed,
-                    nullif(trim(substring(response_line,    374,    20)),   '')     as failed_vin,
-                    nullif(trim(substring(response_line,    394,    2)),    '')     as filler,
-                    nullif(trim(substring(response_line,    396,    1)),    '')     as vehicle_disposition,
-                    nullif(trim(substring(response_line,    397,    11)),   '')     as estimate_amount,
-                    nullif(trim(substring(response_line,    408,    105)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     55)),   '')     as adjusting_company_name,
+                    nullif(trim(substring(response_body,    66,     30)),   '')     as adjuster_last_name,
+                    nullif(trim(substring(response_body,    96,     20)),   '')     as adjuster_first_name,
+                    nullif(trim(substring(response_body,    116,    20)),   '')     as adjuster_middle_initial_name,
+                    nullif(trim(substring(response_body,    136,    10)),   '')     as adjuster_telephone_number,
+                    nullif(trim(substring(response_body,    146,    4)),    '')     as loss_type,
+                    nullif(trim(substring(response_body,    150,    4)),    '')     as coverage_type,
+                    nullif(trim(substring(response_body,    154,    4)),    '')     as vehicle_year,
+                    nullif(trim(substring(response_body,    158,    35)),   '')     as vehicle_make_description,
+                    nullif(trim(substring(response_body,    193,    35)),   '')     as vehicle_model_description,
+                    nullif(trim(substring(response_body,    228,    2)),    '')     as vehicle_style,
+                    nullif(trim(substring(response_body,    230,    2)),    '')     as vehicle_type,
+                    nullif(trim(substring(response_body,    232,    6)),    '')     as vehicle_color,
+                    nullif(trim(substring(response_body,    238,    20)),   '')     as vin,
+                    nullif(trim(substring(response_body,    258,    1)),    '')     as vin_validation,
+                    nullif(trim(substring(response_body,    259,    1)),    '')     as more_match_indicator,
+                    nullif(trim(substring(response_body,    260,    14)),   '')     as engine_serial_no,
+                    nullif(trim(substring(response_body,    274,    14)),   '')     as transmission_serial_no,
+                    nullif(trim(substring(response_body,    288,    14)),   '')     as chassis_serial_no,
+                    nullif(trim(substring(response_body,    302,    10)),   '')     as vehicle_odometer_reading,
+                    nullif(trim(substring(response_body,    312,    2)),    '')     as license_plate_type,
+                    nullif(trim(substring(response_body,    314,    10)),   '')     as license_plate_number,
+                    nullif(trim(substring(response_body,    324,    2)),    '')     as license_plate_state,
+                    nullif(trim(substring(response_body,    326,    4)),    '')     as last_year_registered,
+                    nullif(trim(substring(response_body,    330,    1)),    '')     as more_match_indicator_2,
+                    nullif(trim(substring(response_body,    331,    2)),    '')     as anti_theft_device_type,
+                    nullif(trim(substring(response_body,    333,    2)),    '')     as point_of_impact,
+                    nullif(trim(substring(response_body,    335,    1)),    '')     as driver_airbag_status,
+                    nullif(trim(substring(response_body,    336,    1)),    '')     as passenger_airbag_status,
+                    nullif(trim(substring(response_body,    337,    1)),    '')     as left_side_airbag_status,
+                    nullif(trim(substring(response_body,    338,    1)),    '')     as right_side_airbag_status,
+                    nullif(trim(substring(response_body,    339,    1)),    '')     as theft_type_indicator,
+                    nullif(trim(substring(response_body,    340,    3)),    '')     as claim_status,
+                    nullif(trim(substring(response_body,    343,    1)),    '')     as suit_indicator,
+                    nullif(trim(substring(response_body,    344,    11)),   '')     as filler,
+                    nullif(trim(substring(response_body,    355,    11)),   '')     as settlement_amount,
+                    nullif(trim(substring(response_body,    366,    8)),    '')     as date_claim_closed,
+                    nullif(trim(substring(response_body,    374,    20)),   '')     as failed_vin,
+                    nullif(trim(substring(response_body,    394,    2)),    '')     as filler,
+                    nullif(trim(substring(response_body,    396,    1)),    '')     as vehicle_disposition,
+                    nullif(trim(substring(response_body,    397,    11)),   '')     as estimate_amount,
+                    nullif(trim(substring(response_body,    408,    105)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MV02'
     )
     select      MV02.response_id,
@@ -170,10 +175,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_claimant_match_return_vehicle
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_claimant_match_return_vehicle();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_claimant_match_return_vehicle
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_claimant_match_return_vehicle();
+;
