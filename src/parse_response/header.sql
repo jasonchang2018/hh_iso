@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.header;
-
     insert into
         edwprodhh.iso.header
     (
@@ -17,37 +15,43 @@ begin
         RECORDS_TRANSMITTED,
         ACTUAL_RECORDS_TRANSMITTED
     )
-    with MH01 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       response_id not in (select response_id from edwprodhh.iso.header)
+    )
+    , MH01 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
 
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     9)),    '')     as customer_code,
-                    nullif(trim(substring(response_line,    20,     55)),   '')     as customer_name,
-                    nullif(trim(substring(response_line,    75,     8)),    '')     as process_date,
-                    nullif(trim(substring(response_line,    83,     430)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     9)),    '')     as customer_code,
+                    nullif(trim(substring(response_body,    20,     55)),   '')     as customer_name,
+                    nullif(trim(substring(response_body,    75,     8)),    '')     as process_date,
+                    nullif(trim(substring(response_body,    83,     430)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MH01'
     )
     , MZ01 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
 
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     6)),    '')     as records_transmitted,
-                    nullif(trim(substring(response_line,    17,     9)),    '')     as actual_records_transmitted,
-                    nullif(trim(substring(response_line,    26,     487)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     6)),    '')     as records_transmitted,
+                    nullif(trim(substring(response_body,    17,     9)),    '')     as actual_records_transmitted,
+                    nullif(trim(substring(response_body,    26,     487)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MZ01'
     )
     select      MH01.response_id,
@@ -69,10 +73,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_header
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_header();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_header
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_header();
+;
