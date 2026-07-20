@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.claim_match;
-
     insert into
         edwprodhh.iso.claim_match
     (
@@ -74,129 +72,136 @@ begin
         EXTENDED_LOSS_DESCRIPTION,
         DATE_OF_POLICY_RENEWAL
     )
-    with MA03 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       index_ma03 is not null
+                    and response_id not in (select response_id from edwprodhh.iso.claim_match)
+    )
+    , MA03 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
                     index_ma01,
                     index_ma03,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     11)),   '')     as iso_file_number,
-                    nullif(trim(substring(response_line,    22,     55)),   '')     as insuring_company_name,
-                    nullif(trim(substring(response_line,    77,     50)),   '')     as insuring_company_address,
-                    nullif(trim(substring(response_line,    127,    50)),   '')     as insuring_company_address_2,
-                    nullif(trim(substring(response_line,    177,    25)),   '')     as insuring_company_city,
-                    nullif(trim(substring(response_line,    202,    2)),    '')     as insuring_company_state_province,
-                    nullif(trim(substring(response_line,    204,    9)),    '')     as insuring_company_postal_code,
-                    nullif(trim(substring(response_line,    213,    3)),    '')     as insuring_company_country,
-                    nullif(trim(substring(response_line,    216,    10)),   '')     as insuring_company_phone,
-                    nullif(trim(substring(response_line,    226,    30)),   '')     as policy_number,
-                    nullif(trim(substring(response_line,    256,    4)),    '')     as policy_type,
-                    nullif(trim(substring(response_line,    260,    8)),    '')     as policy_inception_date,
-                    nullif(trim(substring(response_line,    268,    8)),    '')     as policy_expiration_date,
-                    nullif(trim(substring(response_line,    276,    1)),    '')     as policy_renewal_indicator_y_n,
-                    nullif(trim(substring(response_line,    277,    1)),    '')     as assigned_risk_policy_indicator,
-                    nullif(trim(substring(response_line,    278,    30)),   '')     as claim_number,
-                    nullif(trim(substring(response_line,    308,    8)),    '')     as date_of_loss,
-                    nullif(trim(substring(response_line,    316,    4)),    '')     as time_of_loss,
-                    nullif(trim(substring(response_line,    320,    1)),    '')     as cat_indicator,
-                    nullif(trim(substring(response_line,    321,    3)),    '')     as cat_number,
-                    nullif(trim(substring(response_line,    324,    8)),    '')     as company_received_date,
-                    nullif(trim(substring(response_line,    332,    35)),   '')     as agency_notified_of_loss,
-                    nullif(trim(substring(response_line,    367,    15)),   '')     as police_fire_report_case_number,
-                    nullif(trim(substring(response_line,    382,    50)),   '')     as loss_description,
-                    nullif(trim(substring(response_line,    432,    1)),    '')     as hit_and_run_indicator,
-                    nullif(trim(substring(response_line,    433,    3)),    '')     as filler,
-                    nullif(trim(substring(response_line,    436,    1)),    '')     as _8_f_fund_claim,
-                    nullif(trim(substring(response_line,    437,    50)),   '')     as vessel_call_number,
-                    nullif(trim(substring(response_line,    487,    1)),    '')     as mold_indicator,
-                    nullif(trim(substring(response_line,    488,    1)),    '')     as statement_of_dispute_indicator,
-                    nullif(trim(substring(response_line,    489,    1)),    '')     as claim_referred_to_nicb_indicator,
-                    nullif(trim(substring(response_line,    490,    1)),    '')     as mass_tort_indicator,
-                    nullif(trim(substring(response_line,    491,    21)),   '')     as filler,
-                    nullif(trim(substring(response_line,    512,    1)),    '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     11)),   '')     as iso_file_number,
+                    nullif(trim(substring(response_body,    22,     55)),   '')     as insuring_company_name,
+                    nullif(trim(substring(response_body,    77,     50)),   '')     as insuring_company_address,
+                    nullif(trim(substring(response_body,    127,    50)),   '')     as insuring_company_address_2,
+                    nullif(trim(substring(response_body,    177,    25)),   '')     as insuring_company_city,
+                    nullif(trim(substring(response_body,    202,    2)),    '')     as insuring_company_state_province,
+                    nullif(trim(substring(response_body,    204,    9)),    '')     as insuring_company_postal_code,
+                    nullif(trim(substring(response_body,    213,    3)),    '')     as insuring_company_country,
+                    nullif(trim(substring(response_body,    216,    10)),   '')     as insuring_company_phone,
+                    nullif(trim(substring(response_body,    226,    30)),   '')     as policy_number,
+                    nullif(trim(substring(response_body,    256,    4)),    '')     as policy_type,
+                    nullif(trim(substring(response_body,    260,    8)),    '')     as policy_inception_date,
+                    nullif(trim(substring(response_body,    268,    8)),    '')     as policy_expiration_date,
+                    nullif(trim(substring(response_body,    276,    1)),    '')     as policy_renewal_indicator_y_n,
+                    nullif(trim(substring(response_body,    277,    1)),    '')     as assigned_risk_policy_indicator,
+                    nullif(trim(substring(response_body,    278,    30)),   '')     as claim_number,
+                    nullif(trim(substring(response_body,    308,    8)),    '')     as date_of_loss,
+                    nullif(trim(substring(response_body,    316,    4)),    '')     as time_of_loss,
+                    nullif(trim(substring(response_body,    320,    1)),    '')     as cat_indicator,
+                    nullif(trim(substring(response_body,    321,    3)),    '')     as cat_number,
+                    nullif(trim(substring(response_body,    324,    8)),    '')     as company_received_date,
+                    nullif(trim(substring(response_body,    332,    35)),   '')     as agency_notified_of_loss,
+                    nullif(trim(substring(response_body,    367,    15)),   '')     as police_fire_report_case_number,
+                    nullif(trim(substring(response_body,    382,    50)),   '')     as loss_description,
+                    nullif(trim(substring(response_body,    432,    1)),    '')     as hit_and_run_indicator,
+                    nullif(trim(substring(response_body,    433,    3)),    '')     as filler,
+                    nullif(trim(substring(response_body,    436,    1)),    '')     as _8_f_fund_claim,
+                    nullif(trim(substring(response_body,    437,    50)),   '')     as vessel_call_number,
+                    nullif(trim(substring(response_body,    487,    1)),    '')     as mold_indicator,
+                    nullif(trim(substring(response_body,    488,    1)),    '')     as statement_of_dispute_indicator,
+                    nullif(trim(substring(response_body,    489,    1)),    '')     as claim_referred_to_nicb_indicator,
+                    nullif(trim(substring(response_body,    490,    1)),    '')     as mass_tort_indicator,
+                    nullif(trim(substring(response_body,    491,    21)),   '')     as filler,
+                    nullif(trim(substring(response_body,    512,    1)),    '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MA03'
     )
     , MA04 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
                     index_ma01,
                     index_ma03,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     50)),   '')     as loss_location_address_line_1,
-                    nullif(trim(substring(response_line,    61,     50)),   '')     as loss_location_address_line_2,
-                    nullif(trim(substring(response_line,    111,    25)),   '')     as loss_location_city,
-                    nullif(trim(substring(response_line,    136,    2)),    '')     as loss_location_state,
-                    nullif(trim(substring(response_line,    138,    3)),    '')     as loss_location_country,
-                    nullif(trim(substring(response_line,    141,    9)),    '')     as loss_location_postal_code,
-                    nullif(trim(substring(response_line,    150,    363)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     50)),   '')     as loss_location_address_line_1,
+                    nullif(trim(substring(response_body,    61,     50)),   '')     as loss_location_address_line_2,
+                    nullif(trim(substring(response_body,    111,    25)),   '')     as loss_location_city,
+                    nullif(trim(substring(response_body,    136,    2)),    '')     as loss_location_state,
+                    nullif(trim(substring(response_body,    138,    3)),    '')     as loss_location_country,
+                    nullif(trim(substring(response_body,    141,    9)),    '')     as loss_location_postal_code,
+                    nullif(trim(substring(response_body,    150,    363)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MA04'
     )
     , MA06 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
                     index_ma01,
                     index_ma03,
                     
-                    nullif(trim(substring(response_line,    11,     50)),   '')     as physical_risk_address_info_line_1,
-                    nullif(trim(substring(response_line,    61,     50)),   '')     as physical_risk_address_info_line_2,
-                    nullif(trim(substring(response_line,    111,    25)),   '')     as physical_risk_city,
-                    nullif(trim(substring(response_line,    136,    2)),    '')     as physical_risk_state,
-                    nullif(trim(substring(response_line,    138,    9)),    '')     as physical_risk_postal_code,
-                    nullif(trim(substring(response_line,    147,    3)),    '')     as physical_risk_country_code,
-                    nullif(trim(substring(response_line,    150,    50)),   '')     as mailing_address_line_1,
-                    nullif(trim(substring(response_line,    200,    50)),   '')     as mailing_address_line_2,
-                    nullif(trim(substring(response_line,    250,    25)),   '')     as city,
-                    nullif(trim(substring(response_line,    275,    2)),    '')     as state,
-                    nullif(trim(substring(response_line,    277,    9)),    '')     as postal_code,
-                    nullif(trim(substring(response_line,    286,    3)),    '')     as country_code,
-                    nullif(trim(substring(response_line,    289,    70)),   '')     as siu_company_name,
-                    nullif(trim(substring(response_line,    359,    30)),   '')     as siu_investigator_last_name,
-                    nullif(trim(substring(response_line,    389,    20)),   '')     as siu_investigator_first_name,
-                    nullif(trim(substring(response_line,    409,    20)),   '')     as siu_investigator_middle_name,
-                    nullif(trim(substring(response_line,    429,    10)),   '')     as siu_investigator_business_phone,
-                    nullif(trim(substring(response_line,    439,    10)),   '')     as siu_investigator_cell_phone,
-                    nullif(trim(substring(response_line,    449,    1)),    '')     as claim_associated_with_fraud_ring_investigation,
-                    nullif(trim(substring(response_line,    450,    63)),   '')     as filler
+                    nullif(trim(substring(response_body,    11,     50)),   '')     as physical_risk_address_info_line_1,
+                    nullif(trim(substring(response_body,    61,     50)),   '')     as physical_risk_address_info_line_2,
+                    nullif(trim(substring(response_body,    111,    25)),   '')     as physical_risk_city,
+                    nullif(trim(substring(response_body,    136,    2)),    '')     as physical_risk_state,
+                    nullif(trim(substring(response_body,    138,    9)),    '')     as physical_risk_postal_code,
+                    nullif(trim(substring(response_body,    147,    3)),    '')     as physical_risk_country_code,
+                    nullif(trim(substring(response_body,    150,    50)),   '')     as mailing_address_line_1,
+                    nullif(trim(substring(response_body,    200,    50)),   '')     as mailing_address_line_2,
+                    nullif(trim(substring(response_body,    250,    25)),   '')     as city,
+                    nullif(trim(substring(response_body,    275,    2)),    '')     as state,
+                    nullif(trim(substring(response_body,    277,    9)),    '')     as postal_code,
+                    nullif(trim(substring(response_body,    286,    3)),    '')     as country_code,
+                    nullif(trim(substring(response_body,    289,    70)),   '')     as siu_company_name,
+                    nullif(trim(substring(response_body,    359,    30)),   '')     as siu_investigator_last_name,
+                    nullif(trim(substring(response_body,    389,    20)),   '')     as siu_investigator_first_name,
+                    nullif(trim(substring(response_body,    409,    20)),   '')     as siu_investigator_middle_name,
+                    nullif(trim(substring(response_body,    429,    10)),   '')     as siu_investigator_business_phone,
+                    nullif(trim(substring(response_body,    439,    10)),   '')     as siu_investigator_cell_phone,
+                    nullif(trim(substring(response_body,    449,    1)),    '')     as claim_associated_with_fraud_ring_investigation,
+                    nullif(trim(substring(response_body,    450,    63)),   '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MA06'
     )
     , MA08 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
                     index_ma01,
                     index_ma03,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     4)),    '')     as _4_byte_cat_code,
-                    nullif(trim(substring(response_line,    15,     200)),  '')     as extended_loss_description,
-                    nullif(trim(substring(response_line,    215,    16)),   '')     as filler,
-                    nullif(trim(substring(response_line,    231,    8)),    '')     as date_of_policy_renewal,
-                    nullif(trim(substring(response_line,    239,    266)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     4)),    '')     as _4_byte_cat_code,
+                    nullif(trim(substring(response_body,    15,     200)),  '')     as extended_loss_description,
+                    nullif(trim(substring(response_body,    215,    16)),   '')     as filler,
+                    nullif(trim(substring(response_body,    231,    8)),    '')     as date_of_policy_renewal,
+                    nullif(trim(substring(response_body,    239,    266)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MA08'
     )
     select      MA03.response_id,
@@ -289,10 +294,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_claim_match
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_claim_match();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_claim_match
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_claim_match();
+;
