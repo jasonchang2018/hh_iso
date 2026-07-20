@@ -5,13 +5,11 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.response_flat;
-
     insert into
         edwprodhh.iso.response_flat
     (
         RESPONSE_ID,
-        RESPONSE_LINE,
+        RESPONSE_BODY,
         RECORD_KEY,
         RECORD_NUMBER,
         RECORD_TYPE,
@@ -33,13 +31,14 @@ begin
     with response_keys as
     (
         select      response_id,
-                    response_line,
-                    substring(response_line,    1,      10)                                 as record_key,
-                    substring(response_line,    1,      6)                                  as record_number,
-                    substring(response_line,    7,      4)                                  as record_type,
+                    response_body,
+                    substring(response_body,    1,      10)                                 as record_key,
+                    substring(response_body,    1,      6)                                  as record_number,
+                    substring(response_body,    7,      4)                                  as record_type,
                     row_number() over (partition by response_id order by record_number asc) as index
         from        edwprodhh.iso.response
-        order by    3
+        where       response_id not in (select response_id from edwprodhh.iso.response_flat)
+        order by    response_id, index
     )
     , lvl1 as
     (
@@ -91,7 +90,7 @@ begin
         order by    response_id, index   
     )
     select      RESPONSE_ID,
-                RESPONSE_LINE,
+                RESPONSE_BODY,
                 RECORD_KEY,
                 RECORD_NUMBER,
                 RECORD_TYPE,
@@ -119,10 +118,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_response_flat
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_insert_response
--- as
--- call edwprodhh.iso.update_response_flat();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_response_flat
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_insert_response_from_stage
+as
+call edwprodhh.iso.update_response_flat()
+;
