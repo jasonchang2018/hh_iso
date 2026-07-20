@@ -35,6 +35,7 @@ begin
                 upload_date
     from        edwprodhh.iso.response
     where       upload_date = current_date()
+                and file_name not in (select file_name from edwprodhh.iso.response_files)
     ;
 
 end
