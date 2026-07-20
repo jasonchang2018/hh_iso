@@ -8,6 +8,7 @@ begin
     insert into
         edwprodhh.iso.response_flat
     (
+        LINE_ID,
         RESPONSE_ID,
         RESPONSE_BODY,
         RECORD_KEY,
@@ -89,7 +90,8 @@ begin
         from        lvl3
         order by    response_id, index   
     )
-    select      RESPONSE_ID,
+    select      sha2(response_id || index) as LINE_ID,
+                RESPONSE_ID,
                 RESPONSE_BODY,
                 RECORD_KEY,
                 RECORD_NUMBER,
