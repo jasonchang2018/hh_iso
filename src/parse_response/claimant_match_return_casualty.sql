@@ -5,8 +5,6 @@ language    sql
 as
 begin
 
-    truncate table edwprodhh.iso.claimant_match_return_casualty;
-
     insert into
         edwprodhh.iso.claimant_match_return_casualty
     (
@@ -41,10 +39,17 @@ begin
         ADJUSTER_EMAIL_ADDRESS,
         ERISA_CLAIM_INDICATOR
     )
-    with MC02 as
+    with filtered as
+    (
+        select      *
+        from        edwprodhh.iso.response_flat
+        where       index_mo02 is not null
+                    and response_id not in (select response_id from edwprodhh.iso.claimant_match_return_casualty)
+    )
+    , MC02 as
     (
         select      response_id,
-                    response_line,
+                    response_body,
                     record_key,
                     record_number,
                     record_type,
@@ -53,38 +58,38 @@ begin
                     index_mo02,
                     index_mc02,
                     
-                    nullif(trim(substring(response_line,    1,      10)),   '')     as record_key,
-                    nullif(trim(substring(response_line,    11,     55)),   '')     as adjusting_company_name,
-                    nullif(trim(substring(response_line,    66,     30)),   '')     as adjuster_last_name,
-                    nullif(trim(substring(response_line,    96,     20)),   '')     as adjuster_first_name,
-                    nullif(trim(substring(response_line,    116,    20)),   '')     as adjuster_middle_initial_name,
-                    nullif(trim(substring(response_line,    136,    10)),   '')     as adjuster_telephone_number,
-                    nullif(trim(substring(response_line,    146,    4)),    '')     as loss_type,
-                    nullif(trim(substring(response_line,    150,    4)),    '')     as coverage_type,
-                    nullif(trim(substring(response_line,    154,    50)),   '')     as alleged_injuries_property_damage,
-                    nullif(trim(substring(response_line,    204,    2)),    '')     as filler,
-                    nullif(trim(substring(response_line,    206,    3)),    '')     as filler,
-                    nullif(trim(substring(response_line,    209,    3)),    '')     as claim_status,
-                    nullif(trim(substring(response_line,    212,    2)),    '')     as tort_threshold_type,
-                    nullif(trim(substring(response_line,    214,    2)),    '')     as tort_threshold_state,
-                    nullif(trim(substring(response_line,    216,    1)),    '')     as suit_indicator,
-                    nullif(trim(substring(response_line,    217,    11)),   '')     as estimated_loss_amount,
-                    nullif(trim(substring(response_line,    228,    11)),   '')     as filler,
-                    nullif(trim(substring(response_line,    239,    11)),   '')     as settlement_amount,
-                    nullif(trim(substring(response_line,    250,    8)),    '')     as date_claim_closed,
-                    nullif(trim(substring(response_line,    258,    8)),    '')     as loss_time_start_date,
-                    nullif(trim(substring(response_line,    266,    8)),    '')     as loss_time_end_date,
-                    nullif(trim(substring(response_line,    274,    5)),    '')     as total_lost_days,
-                    nullif(trim(substring(response_line,    279,    10)),   '')     as court_filed,
-                    nullif(trim(substring(response_line,    289,    8)),    '')     as court_file_date,
-                    nullif(trim(substring(response_line,    297,    25)),   '')     as court_county,
-                    nullif(trim(substring(response_line,    322,    2)),    '')     as court_state,
-                    nullif(trim(substring(response_line,    324,    22)),   '')     as docket_number,
-                    nullif(trim(substring(response_line,    346,    50)),   '')     as adjuster_email_address,
-                    nullif(trim(substring(response_line,    396,    1)),    '')     as erisa_claim_indicator,
-                    nullif(trim(substring(response_line,    397,    116)),  '')     as filler
+                    nullif(trim(substring(response_body,    1,      10)),   '')     as record_key,
+                    nullif(trim(substring(response_body,    11,     55)),   '')     as adjusting_company_name,
+                    nullif(trim(substring(response_body,    66,     30)),   '')     as adjuster_last_name,
+                    nullif(trim(substring(response_body,    96,     20)),   '')     as adjuster_first_name,
+                    nullif(trim(substring(response_body,    116,    20)),   '')     as adjuster_middle_initial_name,
+                    nullif(trim(substring(response_body,    136,    10)),   '')     as adjuster_telephone_number,
+                    nullif(trim(substring(response_body,    146,    4)),    '')     as loss_type,
+                    nullif(trim(substring(response_body,    150,    4)),    '')     as coverage_type,
+                    nullif(trim(substring(response_body,    154,    50)),   '')     as alleged_injuries_property_damage,
+                    nullif(trim(substring(response_body,    204,    2)),    '')     as filler,
+                    nullif(trim(substring(response_body,    206,    3)),    '')     as filler,
+                    nullif(trim(substring(response_body,    209,    3)),    '')     as claim_status,
+                    nullif(trim(substring(response_body,    212,    2)),    '')     as tort_threshold_type,
+                    nullif(trim(substring(response_body,    214,    2)),    '')     as tort_threshold_state,
+                    nullif(trim(substring(response_body,    216,    1)),    '')     as suit_indicator,
+                    nullif(trim(substring(response_body,    217,    11)),   '')     as estimated_loss_amount,
+                    nullif(trim(substring(response_body,    228,    11)),   '')     as filler,
+                    nullif(trim(substring(response_body,    239,    11)),   '')     as settlement_amount,
+                    nullif(trim(substring(response_body,    250,    8)),    '')     as date_claim_closed,
+                    nullif(trim(substring(response_body,    258,    8)),    '')     as loss_time_start_date,
+                    nullif(trim(substring(response_body,    266,    8)),    '')     as loss_time_end_date,
+                    nullif(trim(substring(response_body,    274,    5)),    '')     as total_lost_days,
+                    nullif(trim(substring(response_body,    279,    10)),   '')     as court_filed,
+                    nullif(trim(substring(response_body,    289,    8)),    '')     as court_file_date,
+                    nullif(trim(substring(response_body,    297,    25)),   '')     as court_county,
+                    nullif(trim(substring(response_body,    322,    2)),    '')     as court_state,
+                    nullif(trim(substring(response_body,    324,    22)),   '')     as docket_number,
+                    nullif(trim(substring(response_body,    346,    50)),   '')     as adjuster_email_address,
+                    nullif(trim(substring(response_body,    396,    1)),    '')     as erisa_claim_indicator,
+                    nullif(trim(substring(response_body,    397,    116)),  '')     as filler
 
-        from        edwprodhh.iso.response_flat
+        from        filtered
         where       record_type = 'MC02'
     )
     select      MC02.response_id,
@@ -129,10 +134,10 @@ end
 
 
 
--- create or replace task
---     edwprodhh.iso.sp_update_claimant_match_return_casualty
---     warehouse = analysis_wh
---     after edwprodhh.iso.sp_update_response_flat
--- as
--- call edwprodhh.iso.update_claimant_match_return_casualty();
--- ;
+create or replace task
+    edwprodhh.iso.sp_update_claimant_match_return_casualty
+    warehouse = analysis_wh
+    after edwprodhh.iso.sp_update_response_flat
+as
+call edwprodhh.iso.update_claimant_match_return_casualty();
+;
