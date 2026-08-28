@@ -69,6 +69,40 @@ begin
                     --** Need to exclude based on values in F303-F310 and F323-330. Waiting on Dan and Heather
         limit       50
     )
+    , patient_names as
+    (
+        select      debtor.debtor_idx,
+
+                    nullif(trim(upper(dimdebtor.spc_fld_1)), '') as fullname,
+
+                    case    when    regexp_like(fullname, '.*\\,.*')
+                            then    nullif(trim(regexp_substr(fullname, '^([^,]*)', 1, 1, 'e')), '')
+                            else    nullif(trim(regexp_substr(fullname, '(([^\\s]*)([\\,\\s]+(JR|SR|I+)\\.?)?)$', 1, 1, 'e')), '')
+                            end     as lastname,
+
+                    case    when    regexp_like(fullname, '.**\\,.*')
+                            then    nullif(trim(regexp_replace(replace(fullname, lastname, ''), '^\\s*\\,\\s*')), '')
+                            else    nullif(trim(replace(fullname, lastname, '')), '')
+                            end     as non_lastname,
+
+                    case    when    regexp_like(non_lastname, '.*\\s.*')
+                            then    regexp_substr(non_lastname, '([^\\s]*)$', 1, 1, 'e')
+                            end     as middlename,
+
+                    case    when    regexp_like(non_lastname, '.*\\s.*')
+                            then    nullif(trim(left(non_lastname, length(non_lastname) - length(middlename))), '')
+                            else    non_lastname
+                            end     as firstname
+
+        from        edwprodhh.pub_jchang.master_debtor as debtor
+                    inner join
+                        eligible
+                        on debtor.debtor_idx = eligible.debtor_idx
+                    left join
+                        edwprodhh.dw.dimdebtor as dimdebtor
+                        on debtor.debtor_idx = dimdebtor.debtor_idx
+
+    )
     , uh01 as
     (
         with fields as
@@ -177,21 +211,21 @@ begin
 
                         case    when    individual_business_indicator = 'I'
                                 then    ''
-                                else    rpad(left('',                                                   70),    70,     ' ')
+                                else    rpad(left('',                                                       70),    70,     ' ')
                                 end     as business_name, --*
                                 
                         case    when    individual_business_indicator = 'I'
-                                then    rpad(left(coalesce(debtor.lastname, ''),                        30),    30,     ' ')
+                                then    rpad(left(coalesce(patient_names.lastname, debtor.lastname, ''),    30),    30,     ' ')
                                 else    ''
                                 end     as last_name, --*
                                 
                         case    when    individual_business_indicator = 'I'
-                                then    rpad(left(coalesce(debtor.firstname, ''),                       20),    20,     ' ')
+                                then    rpad(left(coalesce(patient_names.firstname, debtor.firstname, ''),  20),    20,     ' ')
                                 else    ''
                                 end     as first_name, --*
                                 
                         case    when    individual_business_indicator = 'I'
-                                then    rpad(left('',                                                   20),    20,     ' ')
+                                then    rpad(left('',                                                       20),    20,     ' ')
                                 else    ''
                                 end     as middle_name, --*
 
@@ -249,6 +283,9 @@ begin
                         left join
                             edwprodhh.dw.dimfiscal_hh_d as dimfiscal_hh_d
                             on dimdebtor.debtor_idx = dimfiscal_hh_d.debtor_idx
+                        left join
+                            patient_names
+                            on debtor.debtor_idx = patient_names.debtor_idx
         )
         select      debtor_idx,
                     record_type,
