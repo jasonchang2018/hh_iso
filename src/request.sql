@@ -36,6 +36,7 @@ begin
                         inner join
                             edwprodhh.iso.request_log as iso_request_log
                             on debtor.debtor_idx = iso_request_log.debtor_idx
+            where       iso_request_log.upload_date >= current_date() - 365
         )
         select      debtor.debtor_idx
         from        edwprodhh.pub_jchang.master_debtor as debtor
