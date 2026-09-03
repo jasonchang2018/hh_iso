@@ -44,21 +44,18 @@ begin
                         on debtor.debtor_idx = dimdebtor.debtor_idx
         where       case    when    debtor.pl_group = 'ADVOCATE HC - TPL'
                             then    case    when    dimdebtor.desk in ('LN1')
-                                            and     debtor.balance_dimdebtor >= 500
                                             then    TRUE
                                             else    FALSE
                                             end
                             when    debtor.pl_group = 'IU HEALTH - TPL'
                             then    case    when    debtor.client_idx not in ('HH-2175NLIPB') --exclude PB
                                             and     dimdebtor.desk in ('IU1')
-                                            and     debtor.balance_dimdebtor >= 500
                                             then    TRUE
                                             else    FALSE
                                             end
                             when    debtor.pl_group = 'U OF MISSISSIPPI MEDICAL CENTER - TPL'
                             then    case    when    debtor.client_idx not in ('HH-2170NLIPB', 'HH-2171NLIPB') --exclude PB
                                             and     dimdebtor.desk in ('UM1')
-                                            and     debtor.balance_dimdebtor >= 500
                                             then    TRUE
                                             else    FALSE
                                             end
