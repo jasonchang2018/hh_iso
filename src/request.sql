@@ -64,10 +64,10 @@ begin
                             end
                     and debtor.packet_idx   not in (select packet_idx from previous_packets)
                     and dimdebtor.drl       not in (select drl from previous_packets)
+                    and debtor.batch_date >= '2025-01-01'
                     --** Need to exclude based on values in F303-F310 and F323-330. Waiting on Dan and Heather
         qualify     row_number() over (partition by debtor.packet_idx order by debtor.debtor_idx desc) = 1
         order by    debtor.batch_date desc, debtor.balance_dimdebtor desc
-        limit       50
     )
     , patient_names as
     (
