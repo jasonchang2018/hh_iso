@@ -28,14 +28,18 @@ begin
         (
             select      distinct
                         debtor.packet_idx,
-                        dimdebtor.drl
+                        coalesce(master.id1, dimdebtor.drl) as mrn
             from        edwprodhh.pub_jchang.master_debtor as debtor
-                        left join
-                            edwprodhh.dw.dimdebtor as dimdebtor
-                            on debtor.debtor_idx = dimdebtor.debtor_idx
                         inner join
                             edwprodhh.iso.request_log as iso_request_log
                             on debtor.debtor_idx = iso_request_log.debtor_idx
+                        left join
+                            edwprodhh.dw.dimdebtor as dimdebtor
+                            on debtor.debtor_idx = dimdebtor.debtor_idx
+                        left join
+                            edwprodhh.liquid_unioned.master as master
+                            on debtor.debtornumber = master.number::varchar
+                            and debtor.logon = master.instance
             where       iso_request_log.upload_date >= current_date() - 365
         )
         select      debtor.debtor_idx
@@ -43,6 +47,10 @@ begin
                     left join
                         edwprodhh.dw.dimdebtor as dimdebtor
                         on debtor.debtor_idx = dimdebtor.debtor_idx
+                    left join
+                        edwprodhh.liquid_unioned.master as master
+                        on debtor.debtornumber = master.number::varchar
+                        and debtor.logon = master.instance
         where       case    when    debtor.pl_group = 'ADVOCATE HC - TPL'
                             then    case    when    dimdebtor.desk in ('LN1')
                                             then    TRUE
@@ -60,10 +68,17 @@ begin
                                             then    TRUE
                                             else    FALSE
                                             end
+                            when    debtor.pl_group = 'RIVERWOOD HEALTH - COMPLEX CLAIMS'
+                            then    case    when    debtor.client_idx not in ('RCM-XRWPB') --exclude PB
+                                            and     debtor.desk in ('WCA', 'MVN')
+                                            and     debtor.status in ('NEW')
+                                            then    TRUE
+                                            else    FALSE
+                                            end
                             else    FALSE
                             end
-                    and debtor.packet_idx   not in (select packet_idx from previous_packets)
-                    and dimdebtor.drl       not in (select drl from previous_packets)
+                    and debtor.packet_idx not in (select packet_idx from previous_packets)
+                    and coalesce(master.id1, dimdebtor.drl) not in (select mrn from previous_packets)
                     and debtor.batch_date >= '2026-07-01'
                     and debtor.balance_dimdebtor >= 25
                     and debtor.assigned >= 25
@@ -75,7 +90,10 @@ begin
     (
         select      debtor.debtor_idx,
 
-                    nullif(trim(upper(dimdebtor.spc_fld_1)), '') as fullname,
+                    coalesce(
+                        nullif(trim(upper(patientinfo.name)), ''),
+                        nullif(trim(upper(dimdebtor.spc_fld_1)), '')
+                    )   as fullname,
 
                     case    when    regexp_like(fullname, '.*\\,.*')
                             then    nullif(trim(regexp_substr(fullname, '^([^,]*)', 1, 1, 'e')), '')
@@ -87,12 +105,12 @@ begin
                             else    nullif(trim(replace(fullname, lastname, '')), '')
                             end     as non_lastname,
 
-                    case    when    regexp_like(non_lastname, '.*\\s.*')
-                            then    regexp_substr(non_lastname, '([^\\s]*)$', 1, 1, 'e')
+                    case    when    regexp_like(non_lastname, '.*[\\s\\,].*')
+                            then    regexp_substr(non_lastname, '([^\\s\\,]*)$', 1, 1, 'e')
                             end     as middlename,
 
-                    case    when    regexp_like(non_lastname, '.*\\s.*')
-                            then    nullif(trim(left(non_lastname, length(non_lastname) - length(middlename))), '')
+                    case    when    regexp_like(non_lastname, '.*[\\s\\,].*')
+                            then    trim(regexp_replace(nullif(trim(left(non_lastname, length(non_lastname) - length(middlename))), ''), '[^\\w]', ''))
                             else    non_lastname
                             end     as firstname
 
@@ -103,6 +121,10 @@ begin
                     left join
                         edwprodhh.dw.dimdebtor as dimdebtor
                         on debtor.debtor_idx = dimdebtor.debtor_idx
+                    left join
+                        edwprodhh.liquid_unioned.patientinfo as patientinfo
+                        on debtor.debtornumber = patientinfo.accountid::varchar
+                        and debtor.logon = patientinfo.instance
 
     )
     , uh01 as
@@ -137,7 +159,8 @@ begin
                         
                         case    when    debtor.pl_group = 'U OF MISSISSIPPI MEDICAL CENTER - TPL'   then    rpad(left('UMMC'  || coalesce(dimdebtor.drl, ''),                     30),   30,  ' ')
                                 when    debtor.pl_group = 'IU HEALTH - TPL'                         then    rpad(left('IU'    || coalesce(dimdebtor.drl, ''),                     30),   30,  ' ')
-                                when    debtor.pl_group = 'ADVOCATE HC - TPL'                       then    rpad(left('ADV'   || trim(ltrim(coalesce(dimdebtor.drl, ''), '0')),   30),   30,  ' ')
+                                when    debtor.pl_group = 'ADVOCATE HC - TPL'                       then    rpad(left('ADV'   || ltrim(trim(coalesce(dimdebtor.drl, '')), '0'),   30),   30,  ' ')
+                                when    debtor.pl_group = 'RIVERWOOD HEALTH - COMPLEX CLAIMS'       then    rpad(left('RIV'   || ltrim(trim(coalesce(master.id1,    '')), '0'),   30),   30,  ' ')
                                 else    NULL
                                 end                                                                             as policy_number, --*
 
@@ -195,6 +218,10 @@ begin
                         left join
                             edwprodhh.dw.dimdebtor as dimdebtor
                             on debtor.debtor_idx = dimdebtor.debtor_idx
+                        left join
+                            edwprodhh.liquid_unioned.master as master
+                            on debtor.debtornumber = master.number::varchar
+                            and debtor.logon = master.instance
         )
         select      debtor_idx,
                     record_type,
@@ -233,6 +260,7 @@ begin
 
                         rpad(left(coalesce(to_varchar(
                             coalesce(
+                                patientinfo.dob,
                                 dimdebtor.dob,
                                 DIMFISCAL_HH_A.DOB_F16,
                                 DIMFISCAL_HH_B.PATIENT_DOB,
@@ -252,7 +280,7 @@ begin
                         rpad(left(coalesce(debtor.state, ''),                                                       2),     2,      ' ')    as state, --*
                         rpad(left(coalesce(debtor.zip_code, ''),                                                    9),     9,      ' ')    as postal_code, --*
                         rpad(left('',                                                                               3),     3,      ' ')    as country_code,
-                        rpad(left(coalesce(edwprodhh.pub_jchang.contact_address_format_phone(dimdebtor.phone), ''), 10),    10,     ' ')    as home_telephone, --*
+                        rpad(left(coalesce(edwprodhh.pub_jchang.contact_address_format_phone(coalesce(patientinfo.phone, dimdebtor.phone)), ''), 10),    10,     ' ')    as home_telephone, --*
                         rpad(left('',                                                                               10),    10,     ' ')    as business_telephone,
                         rpad(left('',                                                                               10),    10,     ' ')    as cellular_telephone,
                         rpad(left('',                                                                               10),    10,     ' ')    as pager_number,
@@ -285,6 +313,10 @@ begin
                         left join
                             edwprodhh.dw.dimfiscal_hh_d as dimfiscal_hh_d
                             on dimdebtor.debtor_idx = dimfiscal_hh_d.debtor_idx
+                        left join
+                            edwprodhh.liquid_unioned.patientinfo as patientinfo
+                            on debtor.debtornumber = patientinfo.accountid::varchar
+                            and debtor.logon = patientinfo.instance
                         left join
                             patient_names
                             on debtor.debtor_idx = patient_names.debtor_idx
