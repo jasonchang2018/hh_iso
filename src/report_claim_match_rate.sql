@@ -1,3 +1,6 @@
+create or replace view
+    edwprodhh.iso.report_claim_match_rate
+as
 select      regexp_substr(echo.policy_number, '^(ADV|UMMC|IU)') as client,
             date_trunc('week', to_date(regexp_substr(regexp_substr(file_name, 'D\\d{6}'), '\\d{6}'), 'yymmdd')) as request_date,
             count(distinct echo.response_id, echo.index_ma01) as n_requests,
